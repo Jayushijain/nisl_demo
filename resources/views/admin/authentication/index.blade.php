@@ -1,5 +1,5 @@
 <!-- Simple login form -->
-@extends('layouts.admin')
+@extends('layouts.admin_login')
 
 @section('content')
 
@@ -33,7 +33,7 @@
 					</label>
 				</div>
 				<div class="col-sm-6 text-right">
-					<a href="">{{ __('messages.forgot_password') }}</a>
+					<a href="{{ route('forgot_password') }}">{{ __('messages.forgot_password') }}</a>
 				</div>
 			</div>
 		</div>

@@ -19,4 +19,17 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+
 Route::match(['GET','POST'],'/admin/authentication','Admin\AuthenticationController@index');
+
+Route::get('/admin/dashboard','Admin\DashboardController@index')->name('dashboard');
+
+Route::get('/admin/logout','Admin\AuthenticationController@logout')->name('logout');
+
+Route::match(['GET','POST'],'/admin/forgot_password','Admin\AuthenticationController@forgot_password')->name('forgot_password');
+
+Route::resource('/admin/categories','Admin\CategoryController');
+
+Route::resource('/admin/projects','Admin\ProjectController');
+
+Route::resource('/admin/users','Admin\UserController');
