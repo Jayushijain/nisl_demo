@@ -16,6 +16,7 @@
     "require-dev": {
         "facade/ignition": "^1.4",
         "fzaninotto/faker": "^1.9.1",
+        "laravel/ui": "1.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^3.0",
         "phpunit/phpunit": "^8.0"
@@ -31,6 +32,10 @@
         }
     },
     "autoload": {
+    "files": [
+        "app/Helpers/general_helper.php",
+        "app/Helpers/user_helper.php"
+    ],
         "psr-4": {
             "App\\": "app/"
         },
