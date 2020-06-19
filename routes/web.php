@@ -30,6 +30,8 @@ Route::match(['GET','POST'],'/admin/forgot_password','Admin\AuthenticationContro
 
 Route::resource('/admin/categories','Admin\CategoryController');
 
+Route::get('/admin/categories/{id}','Admin\CategoryController@destroy');
+
 Route::resource('/admin/projects','Admin\ProjectController');
 
 Route::resource('/admin/users','Admin\UserController');

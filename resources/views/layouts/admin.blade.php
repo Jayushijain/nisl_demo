@@ -7,6 +7,7 @@
 
 <!-- Auto Logout after 15 mins (15*60=900 seconds) of inactivity -->
 <meta http-equiv="refresh" content="900;url={{-- url('authentication/autologout') --}}" />
+<meta name="csrf_token" content="{{ csrf_token() }}">
 
 <title>{{-- $data['page_title'] --}}</title>
 

@@ -72,35 +72,6 @@ function has_permissions($feature, $capability)
 	}
 }
 
-/**
- * Determines if user has permissions.
- *
- * @param  str  $feature     The feature/module
- * @param  str  $capability  The capability/action
- *
- * @return bool True if has permissions, False otherwise.
- */
-function has_permissions($feature, $capability)
-{
-	$CI = &get_instance();
-	$CI->load->model('user_permission_model', 'user_permissions');
-	$data = array(
-		'user_id'      => get_loggedin_user_id(),
-		'features'     => $feature,
-		'capabilities' => $capability
 
-	);
-
-	$permissions = $CI->user_permissions->get_many_by($data);
-
-	if ($permissions)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
 
 ?>
