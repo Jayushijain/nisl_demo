@@ -1,3 +1,7 @@
+@extends('layouts.admin')
+
+@section('content')
+
 <!-- Page header -->
 <div class="page-header page-header-default">
     <div class="page-header-content">
@@ -10,7 +14,7 @@
     <div class="breadcrumb-line">
         <ul class="breadcrumb">
             <li>
-                <a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('dashboard') }}</a>
+                <a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('messages.dashboard') }}</a>
             </li>
             <li class="active">{{ __('messages.categories') }}</li>
         </ul>
@@ -21,71 +25,73 @@
 <div class="content">
     <!-- Panel -->
     <div class="panel panel-flat">
-        <?php if (has_permissions('categories','create')||has_permissions('categories','delete')) { ?>
+        @if (has_permissions('categories','create')||has_permissions('categories','delete')) 
         <!-- Panel heading -->
         <div class="panel-heading">
 
-            <?php if (has_permissions('categories','create')) { ?>
-                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add_category_modal"><?php _el('add_new'); ?><i class="icon-plus-circle2 position-right"></i></button>            
-            <?php } ?>
-            <?php if (has_permissions('categories','delete')) { ?>
-                <a href="javascript:delete_selected();" class="btn btn-danger" id="delete_selected"><?php _el('delete_selected'); ?><i class=" icon-trash position-right"></i></a>
-            <?php } ?>
+            @if (has_permissions('categories','create')) 
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add_category_modal">{{ __('messages.add_new') }}<i class="icon-plus-circle2 position-right"></i></button>            
+            @endif
+            @if (has_permissions('categories','delete')) 
+                <a href="javascript:delete_selected();" class="btn btn-danger" id="delete_selected">{{ __('messages.delete_selected') }}<i class=" icon-trash position-right"></i></a>
+            @endif
         </div>
         <!-- /Panel heading -->
-        <?php } ?>
+        @endif
        
         <!-- Listing table -->
         <div class="panel-body table-responsive">
             <table id="categories_table" class="table  table-bordered table-striped">
                 <thead>
                     <tr>
-                        <?php if (has_permissions('categories','delete')) { ?>
+                        @if (has_permissions('categories','delete'))
                         <th width="2%">
                             <input type="checkbox" name="select_all" id="select_all" class="styled"  onclick="select_all(this);" >
                         </th>
-                        <?php } ?>
-                        <th width="82%"><?php _el('name'); ?></th>
-                        <th width="8%" class="text-center"><?php _el('status'); ?></th>
-                        <?php if (has_permissions('categories','edit') || has_permissions('categories','delete')) { ?>
-                        <th width="8%" class="text-center"><?php _el('actions') ?></th>
-                        <?php } ?>
+                        @endif
+                        <th width="82%">{{ __('messages.name') }}</th>
+                        <th width="8%" class="text-center">{{ __('messages.status') }}</th>
+                        @if (has_permissions('categories','edit') || has_permissions('categories','delete')) 
+                        <th width="8%" class="text-center">{{ __('messages.actions') }}</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($categories as $key => $category) { ?>
+                    @foreach ($categories as $key => $category) 
                     <tr>
-                        <?php if (has_permissions('categories','delete')) { ?>
+                        @if (has_permissions('categories','delete'))
                         <td>
-                            <input type="checkbox" class="checkbox styled"  name="delete"  id="<?php echo $category['id']; ?>">
+                            <input type="checkbox" class="checkbox styled"  name="delete"  id="{{ $category->id }}">
                         </td>
-                        <?php } ?>
-                        <td><?php echo ucfirst($category['name']); ?></td>
-                        <?php
+                        @endif
+                        <td>{{ ucfirst($category->name) }}</td>
+                        @php
                         $readonly_status = '';
-                        if (!has_permissions('categories','edit')) {
+                        @endphp
+                        @if (!has_permissions('categories','edit'))
+                            @php 
                             $readonly_status = "readonly";
-                        }
-                        ?>
+                            @endphp
+                        @endif
                         <td class="text-center switchery-sm">
-                            <input type="checkbox" onchange="change_status(this);" class="switchery"  id="<?php echo $category['id']; ?>" <?php if ($category['is_active']==1) { echo "checked"; }  ?> <?php echo  $readonly_status; ?>>
+                            <input type="checkbox" onchange="change_status(this);" class="switchery"  id="{{ $category->id }}" @if ($category->is_active==1) {{ "checked" }} @endif> {{ $readonly_status }}
                         </td>
-                        <?php if (has_permissions('categories','edit') || has_permissions('categories','delete')) { ?>
+                        @if (has_permissions('categories','edit') || has_permissions('categories','delete')) 
                         <td class="text-center">
-                        <?php if (has_permissions('categories','edit')) { ?>
-                            <a data-popup="tooltip" data-placement="top"  title="<?php _el('edit') ?>" href="<?php echo site_url('admin/categories/edit/').$category['id']; ?>" id="<?php echo $category['id']; ?>" class="text-info">
+                        @if (has_permissions('categories','edit')) 
+                            <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.edit') }}" href="{{ route('categories.edit',$category->id) }}" id="{{ $category->id }}" class="text-info">
                                 <i class="icon-pencil7"></i>
                             </a>
-                        <?php } ?>
-                        <?php if (has_permissions('categories','delete')) { ?>
-                            <a data-popup="tooltip" data-placement="top"  title="<?php _el('delete') ?>" href="javascript:delete_record(<?php echo $category['id']; ?>);" class="text-danger delete" id="<?php echo $category['id']; ?>">
+                        @endif
+                        @if (has_permissions('categories','delete')) 
+                            <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.delete') }}" href="javascript:delete_record({{ $category->id }});" class="text-danger delete" id="{{ $category->id }}">
                                 <i class=" icon-trash"></i>
                             </a>
-                        <?php } ?>
+                        @endif
                         </td>
-                        <?php } ?>
+                        @endif
                     </tr>
-                    <?php } ?>
+                    @endforeach
                 </tbody>
             </table>           
         </div>
@@ -101,24 +107,25 @@
         <div class="modal-content">
             <div class="modal-header bg-primary">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h5 class="modal-title"><?php _el('add_category'); ?></h5>
+                <h5 class="modal-title">{{ __('messages.add_category') }}</h5>
             </div>
 
-            <form action="<?php echo base_url('admin/categories/add'); ?>" id="categoryform" method="POST">
+            <form action="{{ route('categories.store') }}" id="categoryform" method="POST">
+                {{ csrf_field() }}
                 <div class="modal-body">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
                                 <small class="req text-danger">*</small>
-                                <label><?php _el('name'); ?>:</label>
-                                <input type="text" class="form-control" placeholder="<?php _el('category_name'); ?>" id="name" name="name"> 
+                                <label>{{ __('messages.name') }}:</label>
+                                <input type="text" class="form-control" placeholder="{{ __('messages.category_name') }}" id="name" name="name"> 
                             </div>                           
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal"><?php _el('close'); ?></button>
-                    <button type="submit" class="btn btn-primary"><?php _el('save'); ?></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('messages.close') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('messages.save') }}</button>
                 </div>
             </form>
         </div>
@@ -126,9 +133,8 @@
 </div>
 <!-- /Add form modal -->
 
-
-
 <script type="text/javascript">
+    
 $(function() {
 
     $('#categories_table').DataTable({        
@@ -152,13 +158,17 @@ $("#categoryform").validate({
     },
     messages: {
         name: {
-            required:"<?php _el('please_enter_', _l('category_name')) ?>",
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.category_name')]) }}",
         },        
     }
-});  
+}); 
 
+var BASE_URL = "<?php echo url('/'); ?>";
 
-var BASE_URL = "<?php echo base_url(); ?>";
+$(document).ready(function()
+        {
+            
+        });
 
 /**
  * Change status when clicked on the status switch
@@ -185,11 +195,11 @@ function change_status(obj)
         {
             if (msg=='true')
             {                           
-                jGrowlAlert("<?php _el('_activated', _l('category')); ?>", 'success');
+                jGrowlAlert("{{ __('messages._activated',['Name' => __('messages.category')]) }}", 'success');
             }
             else
             {                  
-                jGrowlAlert("<?php _el('_deactivated', _l('category')); ?>", 'success');
+                jGrowlAlert("{{ __('messages._deactivated', ['Name' => __('messages.category')]) }}", 'success');
             }
         }
     }); 
@@ -203,27 +213,30 @@ function change_status(obj)
 function delete_record(id) 
 { 
     swal({
-        title: "<?php _el('single_deletion_alert'); ?>",
-        text: "<?php _el('single_recovery_alert'); ?>",
+        title: "{{ __('messages.single_deletion_alert') }}",
+        text: "{{ __('messages.single_recovery_alert') }}",
         type: "warning",  
         showCancelButton: true, 
-        cancelButtonText:"<?php _el('no_cancel_it'); ?>",
-        confirmButtonText: "<?php _el('yes_i_am_sure'); ?>",      
+        cancelButtonText:"{{ __('messages.no_cancel_it') }}",
+        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}",      
     },
     function()
-    {       
+    {   
+        $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });    
         $.ajax({
-            url:BASE_URL+'admin/categories/delete',
-            type: 'POST',
-            data: {
-                category_id:id
-            },
+            type: 'GET',
+            url:'/admin/categories/'+id,            
             success: function(msg)
             {
+                alert(msg);
                 if (msg=="true")
                 {                    
                     swal({                        
-                        title: "<?php _el('_deleted_successfully', _l('category')); ?>",       
+                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.category')]) }}",       
                         type: "success",                            
                     });
                     $("#"+id).closest("tr").remove();
@@ -231,7 +244,7 @@ function delete_record(id)
                 else
                 {                        
                     swal({                           
-                        title: "<?php _el('access_denied', _l('category')); ?>",
+                        title: "{{ __('messages.access_denied', ['Name' => __('messages.category')]) }}",
                         type: "error",                               
                     });
                 }  
@@ -254,16 +267,16 @@ function delete_selected()
     });
     if (category_ids == '')
     {
-        jGrowlAlert("<?php _el('select_before_delete_alert') ?>", 'danger');
+        jGrowlAlert("{{ __('messages.select_before_delete_alert') }}", 'danger');
         preventDefault();
     }
     swal({
-        title: "<?php _el('multiple_deletion_alert'); ?>",
-        text: "<?php _el('multiple_recovery_alert'); ?>",
+        title: "{{ __('messages.multiple_deletion_alert') }}",
+        text: "{{ __('messages.multiple_recovery_alert') }}",
         type: "warning",
         showCancelButton: true, 
-        cancelButtonText:"<?php _el('no_cancel_it'); ?>",
-        confirmButtonText: "<?php _el('yes_i_am_sure'); ?>", 
+        cancelButtonText:"{{ __('messages.no_cancel_it') }}",
+        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}", 
     },
     function()
     {
@@ -278,7 +291,7 @@ function delete_selected()
                 if (msg=="true")
                 {                     
                   swal({                           
-                        title: "<?php _el('_deleted_successfully', _l('categories')); ?>",                    
+                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.category')]) }}",                    
                         type: "success",                            
                     });
                   $(category_ids).each(function(index, element) 
@@ -289,7 +302,7 @@ function delete_selected()
                 else
                 {
                   swal({                            
-                       title: "<?php _el('access_denied', _l('category')); ?>",
+                       title: "{{ __('messages.access_denied', ['Name' => __('messages.category')]) }}",
                         type: "error",   
                     });
                 }
@@ -297,5 +310,6 @@ function delete_selected()
         });
     });
 }
-
 </script>
+
+@stop

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Category;
 
@@ -15,7 +16,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        
+        $categories = DB::table('categories')->get();
+
+        return view('admin.categories.index',compact('categories'));
     }
 
     /**
@@ -25,7 +28,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -36,7 +39,28 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // if (!has_permissions('categories', 'create'))
+        // {
+        //     $this->access_denied('categories', 'create');
+        // }
+        
+        if($request)
+        {
+            $input = $request->except(['_token']);
+
+            $input['user_id'] = get_loggedin_user_id();
+            $input['is_active'] = 1;
+
+            $insert = DB::table('categories')->insert($input);
+
+            log_activity("New Category Created [ID: $insert]");
+
+            if ($insert)
+            {
+                set_alert('success', __('messages._added_successfully', ['Name' => __('messages.category')]));
+                return redirect('admin/categories');
+            }
+        } 
     }
 
     /**
@@ -58,7 +82,11 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        //
+        //$this->set_page_title(_l('categories').' | '._l('edit'));
+        
+        $category = DB::table('categories')->find($id);
+
+        return view('admin.categories.edit', compact('category'));
     }
 
     /**
@@ -70,7 +98,22 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $category = DB::table('categories')->where('id',$id);
+        $input = $request->except(['_method','_token']);
+         $input['is_active'] = $request->is_active ? 1 : 0;
+        
+        if($category->update($input))
+        {
+            log_activity("Category Updated [ID: $id]");
+
+            set_alert('success', __('messages._updated_successfully', ['Name' => __('messages.category')]));
+            return redirect('admin/categories');
+        }
+        else
+        {
+            echo 'hii';
+        }
+
     }
 
     /**
@@ -81,6 +124,15 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $category = DB::table('categories')->where('id',$id)->delete();
+
+        if($category)
+        {
+            echo "true";
+        }
+        else
+        {
+            echo "false";
+        }
     }
 }

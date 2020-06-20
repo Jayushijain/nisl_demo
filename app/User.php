@@ -44,5 +44,5 @@ class User extends Authenticatable
     *
     * @var array
     */
-    protected $dates = ['is_deleted'];
+    protected $dates = ['deleted_at'];
 }
