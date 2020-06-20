@@ -1,28 +1,33 @@
+@extends('layouts.admin')
+
+@section('content')
+
 <!-- Page header -->
 <div class="page-header page-header-default">
 	<div class="page-header-content">
 		<div class="page-title">
 			<h4>
-				<span class="text-semibold"><?php _el('add_project'); ?></span>
+				<span class="text-semibold">{{ __('messages.add_project') }}</span>
 			</h4>
 		</div>
 	</div>
 	<div class="breadcrumb-line">
 		<ul class="breadcrumb">
 			<li>
-				<a href="<?php echo base_url('admin/dashboard'); ?>"><i class="icon-home2 position-left"></i><?php _el('dashboard'); ?></a>
+				<a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('messages.dashboard') }}</a>
 			</li>
 			<li>
-				<a href="<?php echo base_url('admin/projects'); ?>"><?php _el('projects'); ?></a>
+				<a href="{{ route('projects.index') }}">{{ __('messages.projects') }}</a>
 			</li>
-			<li class="active"><?php _el('add'); ?></li>
+			<li class="active">{{ __('messages.add') }}</li>
 		</ul>
 	</div>
 </div>
 <!-- /Page header -->
 <!-- Content area -->
 <div class="content">
-	<form action="<?php echo base_url('admin/projects/add'); ?>" id="projectform" method="POST">
+	<form action="{{ route('projects.store') }}" id="projectform" method="POST">
+		{{ csrf_field() }}
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<!-- Panel -->
@@ -32,7 +37,7 @@
 						<div class="row">
 							<div class="col-md-10">
 								<h5 class="panel-title">
-									<strong><?php _el('project'); ?></strong>
+									<strong>{{ __('messages.project') }}</strong>
 								</h5>
 							</div>
 						</div>
@@ -44,12 +49,12 @@
 							<div class="col-md-12">
 								<div class="form-group">
 									<small class="req text-danger">*</small>
-									<label><?php _el('project_name'); ?>:</label>
-									<input type="text" class="form-control" placeholder="<?php _el('project_name'); ?>" id="name" name="name">
+									<label>{{ __('messages.project_name') }}:</label>
+									<input type="text" class="form-control" placeholder="{{ __('messages.project_name') }}" id="name" name="name">
 								</div>
 								<div class="form-group">
-									<label><?php _el('description'); ?>:</label>
-									<input type="text" class="form-control" placeholder="<?php _el('description'); ?>" id="details" name="details">
+									<label>{{ __('messages.description') }}:</label>
+									<input type="text" class="form-control" placeholder="{{ __('messages.description') }}" id="details" name="details">
 								</div>
 							</div>
 						</div>
@@ -60,8 +65,8 @@
 			</div>
 		</div>
 		<div class="btn-bottom-toolbar text-right btn-toolbar-container-out">
-		<button type="submit" class="btn btn-success" name="submit"><?php _el('save'); ?></button>
-		<a class="btn btn-default" onclick="window.history.back();"><?php _el('back'); ?></a>
+		<button type="submit" class="btn btn-success" name="submit">{{ __('messages.save') }}</button>
+		<a class="btn btn-default" onclick="window.history.back();">{{ __('messages.close') }}</a>
 		</div>
 	</form>
 </div>
@@ -78,9 +83,11 @@ $("#projectform").validate({
 	messages: {
 		name: 
 		{
-			required:"<?php _el('please_enter_', _l('project_name')) ?>",
+			required:"{{ __('messages.please_enter_',['Name'=>__('messages.project_name')] ) }}",
 		},
 	} 
 });  
 </script>
+
+@stop
 

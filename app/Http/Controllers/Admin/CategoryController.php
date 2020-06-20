@@ -53,7 +53,7 @@ class CategoryController extends Controller
 
             $insert = DB::table('categories')->insert($input);
 
-            log_activity("New Category Created [ID: $insert->id]");
+            log_activity("New Category Created [ID: $insert]");
 
             if ($insert)
             {
@@ -124,6 +124,15 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        echo 'true';
+        $category = DB::table('categories')->where('id',$id)->delete();
+
+        if($category)
+        {
+            echo "true";
+        }
+        else
+        {
+            echo "false";
+        }
     }
 }
