@@ -22,16 +22,24 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::match(['GET','POST'],'/admin/authentication','Admin\AuthenticationController@index');
 
-Route::get('/admin/dashboard','Admin\DashboardController@index')->name('dashboard');
+Route::middleware(['logincheck'])->group(function ()
+{
 
-Route::get('/admin/logout','Admin\AuthenticationController@logout')->name('logout');
+	Route::get('/admin/dashboard','Admin\DashboardController@index')->name('dashboard');
 
-Route::match(['GET','POST'],'/admin/forgot_password','Admin\AuthenticationController@forgot_password')->name('forgot_password');
+	Route::get('/admin/logout','Admin\AuthenticationController@logout')->name('logout');
 
-Route::resource('/admin/categories','Admin\CategoryController');
+	Route::match(['GET','POST'],'/admin/forgot_password','Admin\AuthenticationController@forgot_password')->name('forgot_password');
 
-Route::get('/admin/categories/{id}','Admin\CategoryController@destroy');
+	Route::resource('/admin/categories','Admin\CategoryController');
 
-Route::resource('/admin/projects','Admin\ProjectController');
+	Route::get('/admin/categories/delete/{id}','Admin\CategoryController@destroy');
 
-Route::resource('/admin/users','Admin\UserController');
+	Route::post('/admin/categories/update_status','Admin\CategoryController@update_status')->name('categories_update_status');
+
+	Route::resource('/admin/projects','Admin\ProjectController');
+
+	Route::get('/admin/projects/delete/{id}','Admin\ProjectController@destroy');
+
+	Route::resource('/admin/users','Admin\UserController');
+});

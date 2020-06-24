@@ -55,6 +55,7 @@ class AuthenticationController extends Controller
 			//maybe_redirect_to_previous_url();
 
 			//Else rediret to admin home page.
+			//return 'true';
 			return redirect('/admin/dashboard');
 		}
 		else

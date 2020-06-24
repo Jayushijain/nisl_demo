@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 function set_alert($type, $message)
 {
 	Session::flash($type, $message);
+	
 }
 
 /**

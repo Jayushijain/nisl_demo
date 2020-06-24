@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
+
 <!-- Page header -->
 <div class="page-header page-header-default">
   <div class="page-header-content">
@@ -67,7 +68,7 @@
             </td>
             @endif
             <td>{{ $project->project_id }}</td>
-            <td>{{ ucfirst($project->name) }}</td>
+            <td>{{ ucwords($project->name) }}</td>
             <td>{{ ucfirst($project->details) }}</td>
             <td>{{ display_date_time($project->created_at) }}</td>
             @if (has_permissions('projects','edit') || has_permissions('projects','delete'))
@@ -135,7 +136,7 @@ function delete_record(id)
             });    
         $.ajax({
             type: 'GET',
-            url:'/admin/projects/'+id,            
+            url:'/admin/projects/delete/'+id,            
             success: function(msg)
             {
                 alert(msg);

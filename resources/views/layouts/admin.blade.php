@@ -222,7 +222,7 @@ switches.forEach(function(html) {
 	if(Session::has($alert_class))
 	{
 ?>
-		jGrowlAlert("{{ Session::flash($alert_class)  }}",'{{ $alert_class }}');
+		jGrowlAlert("{{ session($alert_class)  }}",'{{ $alert_class }}');
 <?php  
 	}
 ?>

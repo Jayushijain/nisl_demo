@@ -65,7 +65,7 @@
 			</div>
 		</div>
 		<div class="btn-bottom-toolbar text-right btn-toolbar-container-out">
-		<button type="submit" class="btn btn-success" name="submit">{{ __('messages.save') }}</button>
+		<button type="submit" class="btn btn-success" >{{ __('messages.save') }}</button>
 		<a class="btn btn-default" onclick="window.history.back();">{{ __('messages.close') }}</a>
 		</div>
 	</form>

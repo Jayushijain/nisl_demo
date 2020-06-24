@@ -25,20 +25,20 @@
 <div class="content">
     <!-- Panel -->
     <div class="panel panel-flat">
-        @if (has_permissions('categories','create')||has_permissions('categories','delete')) 
+        @if (has_permissions('categories','create')||has_permissions('categories','delete'))
         <!-- Panel heading -->
         <div class="panel-heading">
 
-            @if (has_permissions('categories','create')) 
-                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add_category_modal">{{ __('messages.add_new') }}<i class="icon-plus-circle2 position-right"></i></button>            
+            @if (has_permissions('categories','create'))
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add_category_modal">{{ __('messages.add_new') }}<i class="icon-plus-circle2 position-right"></i></button>
             @endif
-            @if (has_permissions('categories','delete')) 
+            @if (has_permissions('categories','delete'))
                 <a href="javascript:delete_selected();" class="btn btn-danger" id="delete_selected">{{ __('messages.delete_selected') }}<i class=" icon-trash position-right"></i></a>
             @endif
         </div>
         <!-- /Panel heading -->
         @endif
-       
+
         <!-- Listing table -->
         <div class="panel-body table-responsive">
             <table id="categories_table" class="table  table-bordered table-striped">
@@ -51,13 +51,13 @@
                         @endif
                         <th width="82%">{{ __('messages.name') }}</th>
                         <th width="8%" class="text-center">{{ __('messages.status') }}</th>
-                        @if (has_permissions('categories','edit') || has_permissions('categories','delete')) 
+                        @if (has_permissions('categories','edit') || has_permissions('categories','delete'))
                         <th width="8%" class="text-center">{{ __('messages.actions') }}</th>
                         @endif
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($categories as $key => $category) 
+                    @foreach ($categories as $key => $category)
                     <tr>
                         @if (has_permissions('categories','delete'))
                         <td>
@@ -69,21 +69,21 @@
                         $readonly_status = '';
                         @endphp
                         @if (!has_permissions('categories','edit'))
-                            @php 
+                            @php
                             $readonly_status = "readonly";
                             @endphp
                         @endif
                         <td class="text-center switchery-sm">
                             <input type="checkbox" onchange="change_status(this);" class="switchery"  id="{{ $category->id }}" @if ($category->is_active==1) {{ "checked" }} @endif> {{ $readonly_status }}
                         </td>
-                        @if (has_permissions('categories','edit') || has_permissions('categories','delete')) 
+                        @if (has_permissions('categories','edit') || has_permissions('categories','delete'))
                         <td class="text-center">
-                        @if (has_permissions('categories','edit')) 
+                        @if (has_permissions('categories','edit'))
                             <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.edit') }}" href="{{ route('categories.edit',$category->id) }}" id="{{ $category->id }}" class="text-info">
                                 <i class="icon-pencil7"></i>
                             </a>
                         @endif
-                        @if (has_permissions('categories','delete')) 
+                        @if (has_permissions('categories','delete'))
                             <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.delete') }}" href="javascript:delete_record({{ $category->id }});" class="text-danger delete" id="{{ $category->id }}">
                                 <i class=" icon-trash"></i>
                             </a>
@@ -93,7 +93,7 @@
                     </tr>
                     @endforeach
                 </tbody>
-            </table>           
+            </table>
         </div>
         <!-- /Listing table -->
     </div>
@@ -118,8 +118,8 @@
                             <div class="col-sm-12">
                                 <small class="req text-danger">*</small>
                                 <label>{{ __('messages.name') }}:</label>
-                                <input type="text" class="form-control" placeholder="{{ __('messages.category_name') }}" id="name" name="name"> 
-                            </div>                           
+                                <input type="text" class="form-control" placeholder="{{ __('messages.category_name') }}" id="name" name="name">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,22 +134,22 @@
 <!-- /Add form modal -->
 
 <script type="text/javascript">
-    
+
 $(function() {
 
-    $('#categories_table').DataTable({        
+    $('#categories_table').DataTable({
         'columnDefs': [ {
         'targets': [0,2,3], /* column index */
         'orderable': false, /* disable sorting */
         }],
-         
+
     });
 
     //add class to style style datatable select box
     $('div.dataTables_length select').addClass('datatable-select');
  });
 
-$("#categoryform").validate({   
+$("#categoryform").validate({
     rules: {
         name:
         {
@@ -159,16 +159,11 @@ $("#categoryform").validate({
     messages: {
         name: {
             required:"{{ __('messages.please_enter_',['Name' => __('messages.category_name')]) }}",
-        },        
+        },
     }
-}); 
+});
 
 var BASE_URL = "<?php echo url('/'); ?>";
-
-$(document).ready(function()
-        {
-            
-        });
 
 /**
  * Change status when clicked on the status switch
@@ -177,32 +172,39 @@ $(document).ready(function()
  */
 function change_status(obj)
 {
-    var checked = 0;     
+    var checked = 0;
 
-    if(obj.checked) 
-    { 
+    if(obj.checked)
+    {
         checked = 1;
-    }  
+    }
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
     $.ajax({
-        url:BASE_URL+'admin/categories/update_status',
+        url: "{{ route('categories_update_status') }}",
         type: 'POST',
         data: {
             category_id: obj.id,
             is_active:checked
         },
-        success: function(msg) 
+        success: function(msg)
         {
+            alert(msg);
             if (msg=='true')
-            {                           
+            {
                 jGrowlAlert("{{ __('messages._activated',['Name' => __('messages.category')]) }}", 'success');
             }
             else
-            {                  
+            {
                 jGrowlAlert("{{ __('messages._deactivated', ['Name' => __('messages.category')]) }}", 'success');
             }
         }
-    }); 
+    });
 }
 
 /**
@@ -210,44 +212,39 @@ function change_status(obj)
  *
  * @param {int}  id  The identifier
  */
-function delete_record(id) 
-{ 
+function delete_record(id)
+{
     swal({
         title: "{{ __('messages.single_deletion_alert') }}",
         text: "{{ __('messages.single_recovery_alert') }}",
-        type: "warning",  
-        showCancelButton: true, 
+        type: "warning",
+        showCancelButton: true,
         cancelButtonText:"{{ __('messages.no_cancel_it') }}",
-        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}",      
+        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}",
     },
     function()
-    {   
-        $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });    
+    {
+
         $.ajax({
             type: 'GET',
-            url:'/admin/categories/'+id,            
+            url:'/admin/categories/delete/'+id,
             success: function(msg)
             {
-                alert(msg);
                 if (msg=="true")
-                {                    
-                    swal({                        
-                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.category')]) }}",       
-                        type: "success",                            
+                {
+                    swal({
+                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.category')]) }}",
+                        type: "success",
                     });
                     $("#"+id).closest("tr").remove();
                 }
                 else
-                {                        
-                    swal({                           
+                {
+                    swal({
                         title: "{{ __('messages.access_denied', ['Name' => __('messages.category')]) }}",
-                        type: "error",                               
+                        type: "error",
                     });
-                }  
+                }
             }
         });
     });
@@ -256,8 +253,8 @@ function delete_record(id)
 /**
  * Deletes all the selected records when clicked on DELETE SELECTED button
  */
-function delete_selected() 
-{     
+function delete_selected()
+{
     var category_ids = [];
 
     $(".checkbox:checked").each(function()
@@ -274,9 +271,9 @@ function delete_selected()
         title: "{{ __('messages.multiple_deletion_alert') }}",
         text: "{{ __('messages.multiple_recovery_alert') }}",
         type: "warning",
-        showCancelButton: true, 
+        showCancelButton: true,
         cancelButtonText:"{{ __('messages.no_cancel_it') }}",
-        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}", 
+        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}",
     },
     function()
     {
@@ -289,27 +286,28 @@ function delete_selected()
             success: function(msg)
             {
                 if (msg=="true")
-                {                     
-                  swal({                           
-                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.category')]) }}",                    
-                        type: "success",                            
+                {
+                  swal({
+                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.category')]) }}",
+                        type: "success",
                     });
-                  $(category_ids).each(function(index, element) 
+                  $(category_ids).each(function(index, element)
                   {
                       $("#"+element).closest("tr").remove();
                   });
                 }
                 else
                 {
-                  swal({                            
+                  swal({
                        title: "{{ __('messages.access_denied', ['Name' => __('messages.category')]) }}",
-                        type: "error",   
+                        type: "error",
                     });
                 }
             }
         });
     });
 }
+
 </script>
 
 @stop

@@ -12,7 +12,7 @@ class Authentication extends Model
     {
     	if ((!empty($email)) && (!empty($password)))
 		{
-			$user = DB::table('users')->where('email',$email)->first();
+			$user = User::where('email',$email)->first();
 
 		 	if ($user)
 		 	{
@@ -59,6 +59,11 @@ class Authentication extends Model
 
 		 return false;
     }
+
+    // public function checkLogin()
+    // {
+    // 	if($this->login)
+    // }
 
     /**
 	 *
