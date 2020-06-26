@@ -42,4 +42,6 @@ Route::middleware(['logincheck'])->group(function ()
 	Route::get('/admin/projects/delete/{id}','Admin\ProjectController@destroy');
 
 	Route::resource('/admin/users','Admin\UserController');
+
+	Route::get('/admin/users/delete/{id}','Admin\UserController@destroy');
 });

@@ -31,9 +31,9 @@
             @if ( has_permissions('users','create') || has_permissions('users','Delete') ) 
             <a href="{{ route('users.create') }}" class="btn btn-primary">{{ __('messages.add_new') }}<i class="icon-plus-circle2 position-right"></i></a>  
             @endif
-            <?php if (has_permissions('users','Delete')) { ?>
-            <a href="javascript:delete_selected();" class="btn btn-danger" id="delete_selected"><?php _el('delete_selected'); ?><i class=" icon-trash position-right"></i></a>
-            <?php } ?>
+            @if (has_permissions('users','Delete')) 
+            <a href="javascript:delete_selected();" class="btn btn-danger" id="delete_selected">{{ __('messages.delete_selected') }}<i class=" icon-trash position-right"></i></a>
+            @endif
         </div>
         <!-- /Panel heading -->
         @endif
@@ -43,80 +43,85 @@
             <table id="users_table" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <?php if (has_permissions('users','delete')) { ?>
+                        @if (has_permissions('users','delete')) 
                         <th width="2%">
                             <input type="checkbox" name="select_all" id="select_all" class="styled" onclick="select_all(this);" >
                         </th>
-                        <?php } ?>
-                        <th width="30%"><?php _el('firstname'); ?></a> <?php _el('lastname'); ?></th>
-                        <th width="30%"><?php _el('email'); ?></th>
-                        <th width="10%"><?php _el('role'); ?></th>
-                        <th width="12%"><?php _el('last_login'); ?></th>
-                        <th width="8%" class="text-center"><?php _el('status'); ?></th>
-                        <?php if (has_permissions('users','edit') || has_permissions('users','delete')) { ?>
-                        <th width="8%" class="text-center"><?php _el('actions'); ?></th>
-                        <?php } ?>
+                        @endif
+                        <th width="30%">{{ __('messages.firstname') }}</a> {{ __('messages.lastname') }}</th>
+                        <th width="30%">{{ __('messages.email') }}</th>
+                        <th width="10%">{{ __('messages.role') }}</th>
+                        <th width="12%">{{ __('messages.last_login') }}</th>
+                        <th width="8%" class="text-center">{{ __('messages.status') }}</th>
+                        @if (has_permissions('users','edit') || has_permissions('users','delete'))
+                        <th width="8%" class="text-center">{{ __('messages.actions') }}</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($users as $key => $user) { ?>
+                    @foreach ($users as $key => $user) 
                     <tr>
-                        <?php if (has_permissions('users','delete')){
-                            $disabled = '';
-                            if ($user['id'] == get_loggedin_info('user_id')){
+                        @if (has_permissions('users','delete'))
+                            @php
+                                $disabled = '';                            
+                            @endphp
+                            @if ($user->id == get_loggedin_info('user_id'))
+                                @php
                                 $disabled = 'disabled';
-                            } 
-                        ?>
+                                @endphp
+                            @endif
                         <td>
-                            <input type="checkbox" class="checkbox styled"  name="delete"  id="<?php if ($user['id'] != get_loggedin_info('user_id')) {  echo $user['id']; }?>" <?php echo $disabled; ?>>
+                            <input type="checkbox" class="checkbox styled"  name="delete"  id="@if ($user->id != get_loggedin_info('user_id')) {{ $user->id }} @endif" {{ $disabled }}>
                         </td>
-                        <?php } ?>
+                        @endif
 
                         <td>
-                            <?php echo ucfirst($user['firstname']).'&nbsp;'.ucfirst($user['lastname']); ?>
+                            {!! ucfirst($user->firstname).'&nbsp;'.ucfirst($user->lastname) !!}
                         </td>
                         <td>
-                            <a href="mailto:<?php echo $user['email']; ?>"><?php echo $user['email']; ?></a>
+                            <a href="mailto:{{ $user->email }}">{{ $user->email }}</a>
                         </td>
                         <td>
-                            <?php echo get_role_by_id($user['role']);?>
+                            {{ get_role_by_id($user->role) }}
                         </td>
 
-                        <?php $login_datetime = $user['last_login'] != null ? display_date_time($user['last_login']) : _l('never'); ?>
+                        @php 
+                        $login_datetime = $user->last_login != null ? display_date_time($user->last_login) : __('messages.never');
+                        @endphp
                         <td>
-                            <abbr data-popup="tooltip" data-placement="top"  title="<?php echo $login_datetime; ?>">
-                            <?php
-                            if ($user['last_login'] != 'Never'){
-                                echo time_to_words($user['last_login']);
-                            }else{
-                                _el('never');
-                            }
-                            ?>
+                            <abbr data-popup="tooltip" data-placement="top"  title="{{ $login_datetime }}">
+                            @if ($user['last_login'] != 'Never')
+                                {{ time_to_words($user->last_login) }}
+                            @else
+                                {{ __('messages.never') }}
+                            @endif
                             </abbr>
                         </td>
 
-                        <?php            
+                        @php            
                         $readonly = '';
-                        if ($user['id'] == get_loggedin_info('user_id') || !has_permissions('users','edit')){
+                        @endphp
+                        @if ($user['id'] == get_loggedin_info('user_id') || !has_permissions('users','edit'))
+                            @php
                             $readonly = "readonly";
-                        }
-                        ?>
+                            @endphp
+                        @endif
                         <td class="text-center switchery-sm">
-                            <input type="checkbox" onchange="change_status(this);" class="switchery"  id="<?php echo $user['id']; ?>" <?php if ($user['is_active'] == 1) { echo "checked"; } ?> <?php echo $readonly; ?>>
+                            <input type="checkbox" onchange="change_status(this);" class="switchery"  id="{{ $user->id }}" @if ($user['is_active'] == 1)  {{ "checked" }} @endif {{ $readonly }}>
                         </td>
 
-                        <?php if (has_permissions('users','edit') || has_permissions('users','delete')) { ?>
+                        @if (has_permissions('users','edit') || has_permissions('users','delete'))
                         <td class="text-center">
-                            <?php  if (has_permissions('users', 'edit')) { ?>
-                            <a data-popup="tooltip" data-placement="top"  title="<?php _el('edit') ?>" href="<?php echo site_url('admin/users/edit/').$user['id']; ?>" id="<?php echo $user['id']; ?>" class="text-info"><i class="icon-pencil7"></i></a>
-                            <?php } ?>
-                            <?php if (has_permissions('users', 'delete')) { ?>
-                            <a data-popup="tooltip" data-placement="top"  title="<?php _el('delete') ?>" href="javascript:delete_record(<?php echo $user['id']; ?>);" class="text-danger delete" id="<?php echo $user['id']; ?>"><i class=" icon-trash"></i></a>
-                            <?php } ?>
+                            @if (has_permissions('users', 'edit'))
+                            <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.edit') }}" href="{{ route('users.edit',$user->id) }}" id="{{ $user->id }}" class="text-info"><i class="icon-pencil7"></i></a>
+                            @endif
+                            @if (has_permissions('users', 'delete')) 
+                            <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.delete') }}" href="javascript:delete_record({{ $user->id }});" class="text-danger delete" id="{{ $user->id }}"><i class=" icon-trash"></i></a>
+                            @endif
                         </td>
-                        <?php } ?>
+                        @endif
                     </tr>
-                    <?php } ?>
+                    @endforeach
                 </tbody>
             </table>           
         </div>
@@ -154,7 +159,7 @@ $(function() {
  });
 
 
-var BASE_URL = "<?php echo base_url(); ?>";
+var BASE_URL = "<?php echo url('/'); ?>";
 
 /**
  * Change status when clicked on the status switch
@@ -180,12 +185,12 @@ function change_status(obj)
         success: function(msg) 
         {
             if (msg=='true')
-            {                           
-                jGrowlAlert("<?php _el('_activated', _l('user')); ?>", 'success');
+            {
+                jGrowlAlert("{{ __('messages._activated',['Name' => __('messages.user')]) }}", 'success');
             }
             else
-            {                  
-                jGrowlAlert("<?php _el('_deactivated', _l('user')); ?>", 'success');
+            {
+                jGrowlAlert("{{ __('messages._deactivated', ['Name' => __('messages.user')]) }}", 'success');
             }
         }
     }); 
@@ -199,27 +204,24 @@ function change_status(obj)
 function delete_record(id) 
 { 
     swal({
-        title: "<?php _el('single_deletion_alert'); ?>",
-        text: "<?php _el('single_recovery_alert'); ?>",
-        type: "warning", 
-        showCancelButton: true, 
-        cancelButtonText:"<?php _el('no_cancel_it'); ?>",
-        confirmButtonText: "<?php _el('yes_i_am_sure'); ?>",  
+        title: "{{ __('messages.single_deletion_alert') }}",
+        text: "{{ __('messages.single_recovery_alert') }}",
+        type: "warning",
+        showCancelButton: true,
+        cancelButtonText:"{{ __('messages.no_cancel_it') }}",
+        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}",  
     },
     function()
     {
         $.ajax({
-            url:BASE_URL+'admin/users/delete',
-            type: 'POST',
-            data: {
-                user_id:id
-            },
+           type: 'GET',
+            url:'/admin/users/delete/'+id,
             success: function(msg)
             {
                 if (msg=="true")
-                {                        
+                {
                     swal({
-                        title: "<?php _el('_deleted_successfully', _l('user')); ?>",
+                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.user')]) }}",
                         type: "success",
                     });
                     $("#"+id).closest("tr").remove();
@@ -227,8 +229,8 @@ function delete_record(id)
                 else
                 {
                     swal({
-                        title: "<?php _el('access_denied', _l('user')); ?>",                    
-                        type: "error",                            
+                        title: "{{ __('messages.access_denied', ['Name' => __('messages.user')]) }}",
+                        type: "error",
                     });
                 }  
             }
@@ -250,16 +252,16 @@ function delete_selected()
     });
     if (user_ids == '')
     {
-        jGrowlAlert("<?php _el('select_before_delete_alert', _l('users')) ?>", 'danger');
+        jGrowlAlert("{{ __('messages.select_before_delete_alert') }}", 'danger');
         preventDefault();
     }
     swal({
-        title: "<?php _el('multiple_deletion_alert'); ?>",
-        text: "<?php _el('multiple_recovery_alert'); ?>",
-        type: "warning", 
-        showCancelButton: true, 
-        cancelButtonText:"<?php _el('no_cancel_it'); ?>",
-        confirmButtonText: "<?php _el('yes_i_am_sure'); ?>",       
+        title: "{{ __('messages.multiple_deletion_alert') }}",
+        text: "{{ __('messages.multiple_recovery_alert') }}",
+        type: "warning",
+        showCancelButton: true,
+        cancelButtonText:"{{ __('messages.no_cancel_it') }}",
+        confirmButtonText: "{{ __('messages.yes_i_am_sure') }}",      
     },
     function()
     {
@@ -274,7 +276,7 @@ function delete_selected()
                 if (msg=="true")
                 {
                     swal({
-                        title: "<?php _el('_deleted_successfully', _l('user')); ?>",
+                        title: "{{ __('messages._deleted_successfully', ['Name' => __('messages.user')]) }}",
                         type: "success",
                     });
                     $(user_ids).each(function(index, element) 
@@ -285,7 +287,7 @@ function delete_selected()
                 else
                 {
                     swal({
-                        title: "<?php _el('access_denied', _l('user')); ?>",                    
+                        title: "{{ __('messages.access_denied', ['Name' => __('messages.user')]) }}",
                         type: "error",                             
                     });
                 }

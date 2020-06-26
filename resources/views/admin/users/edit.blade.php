@@ -1,28 +1,34 @@
+@extends('layouts.admin')
+
+@section('content')
+
 <!-- Page header -->
 <div class="page-header page-header-default">
 	<div class="page-header-content">
 		<div class="page-title">
 			<h4>
-				<span class="text-semibold"><?php _el('edit_user'); ?></span>
+				<span class="text-semibold">{{ __('messages.edit_user') }}</span>
 			</h4>
 		</div>
 	</div>
 	<div class="breadcrumb-line">
 		<ul class="breadcrumb">
 			<li>
-				<a href="<?php echo base_url('admin/dashboard'); ?>"><i class="icon-home2 position-left"></i><?php _el('dashboard'); ?></a>
+				<a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('messages.dashboard') }}</a>
 			</li>
 			<li>
-				<a href="<?php echo base_url('admin/users'); ?>"><?php _el('users'); ?></a>
+				<a href="{{ route('users.index') }}">{{ __('messages.users') }}</a>
 			</li>
-			<li class="active"><?php _el('edit'); ?></li>
+			<li class="active">{{ __('messages.edit') }}</li>
 		</ul>
 	</div>
 </div>
 <!-- Page header -->
 <!-- Content area -->
 <div class="content">	
-	<form action="<?php echo base_url('admin/users/edit/').$user['id']; ?>" id="profileform" method="POST">
+	<form action="{{ route('users.update',$user->id) }}" id="profileform" method="POST">
+		{{ method_field('PATCH') }}
+		{{ csrf_field() }}
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<!-- Panel -->
@@ -32,7 +38,7 @@
 						<div class="row">
 							<div class="col-md-10">
 								<h5 class="panel-title">
-									<strong><?php _el('user'); ?></strong>
+									<strong>{{ __('messages.users') }}</strong>
 								</h5>
 							</div>
 						</div>
@@ -44,47 +50,49 @@
 							<div class="col-md-12">
 								<div class="form-group">
 									<small class="req text-danger">* </small>
-									<label><?php _el('firstname'); ?>:</label>
-									<input type="text" class="form-control" placeholder="<?php _el('firstname'); ?>" id="firstname" name="firstname" value="<?php echo $user['firstname']; ?>">
+									<label>{{ __('messages.firstname') }}:</label>
+									<input type="text" class="form-control" placeholder="{{ __('messages.firstname') }}" id="firstname" name="firstname" value="{{ $user->firstname }}">
 								</div>
 								<div class="form-group">
 									<small class="req text-danger">* </small>
-									<label><?php _el('lastname'); ?>:</label>
-									<input type="text" class="form-control" placeholder="<?php _el('lastname'); ?>" id="lastname" name="lastname" value="<?php echo $user['lastname']; ?>">
+									<label>{{ __('messages.lastname') }}:</label>
+									<input type="text" class="form-control" placeholder="{{ __('messages.lastname') }}" id="lastname" name="lastname" value="{{ $user->lastname }}">
 								</div>
 								<div class="form-group">
 									<small class="req text-danger">* </small>
-									<label><?php _el('email'); ?>:</label>
-									<input type="text" class="form-control" placeholder="<?php _el('email'); ?>" id="email" name="email" class="email"value="<?php echo $user['email']; ?>">
+									<label>{{ __('messages.email') }}:</label>
+									<input type="text" class="form-control" placeholder="{{ __('messages.email') }}" id="email" name="email" class="email"value="{{ $user->email }}">
 								</div>
 								<div class="form-group">
 									<small class="req text-danger">* </small>
-									<label><?php _el('mobile_no'); ?>:</label>
-									<input type="text" class="form-control" placeholder="<?php _el('mobile_no'); ?>" id="mobile_no" name="mobile_no" value="<?php echo $user['mobile_no']; ?>">
+									<label>{{ __('messages.mobile_no') }}:</label>
+									<input type="text" class="form-control" placeholder="{{ __('messages.mobile_no') }}" id="mobile_no" name="mobile_no" value="{{ $user->mobile_no }}">
 								</div>
 								<div class="form-group">							
-									<label><?php _el('new_password'); ?>:</label>
-									<input type="password" class="form-control" placeholder="<?php _el('enter_new_password_only_if_you_want_to_change_password'); ?>" id="newpassword" name="newpassword" value="" >											
+									<label>{{ __('messages.new_password') }}:</label>
+									<input type="password" class="form-control" placeholder="{{ __('messages.enter_new_password_only_if_you_want_to_change_password') }}" id="newpassword" name="newpassword" value="" >											
 								</div>
 								<div class="form-group">
-									<label><?php _el('status'); ?>:</label>
-									<?php 
+									<label>{{ __('messages.status') }}:</label>
+									@php 
 									$readonly = '';
-									if ($user['id']==get_loggedin_user_id()){
-										$readonly="readonly";
-									} 
-									?> 
+									@endphp
+									@if ($user->id==get_loggedin_user_id())
+										@php
+											$readonly="readonly";
+										@endphp
+									@endif 
 									<input type="checkbox" class="switchery" name="is_active" 
-									id="<?php echo $user['id']; ?>" <?php if($user['is_active']==1) { echo "checked";} ?>  <?php  echo $readonly; ?> >
+									id="{{ $user->id }}" @if($user['is_active']==1) {{ "checked" }} @endif  {{ $readonly }} >
 								</div>
 								<div class="form-group">
 									<small class="req text-danger">* </small>
-									<label><?php _el('role'); ?></label>
+									<label>{{ __('messages.role') }}</label>
 									<select class="select" name="role" id="role">
-										<?php foreach ($roles as $key => $role) { ?>									
-										<option value="<?php echo $role['id']; ?>" name="role" <?php if($user['role']==$role['id']){ echo  "selected";}?>><?php echo $role['name'] ?>
+										@foreach ($roles as $key => $role) 								
+										<option value="{{ $role->id }}" name="role" @if($user->role==$role->id) {{  "selected" }} @endif>{{ $role->name }}
 										</option>
-										<?php } ?>
+										@endforeach
 									</select>
 								</div>
 							</div>
@@ -96,8 +104,8 @@
 			</div>
 		</div>	
 		<div class="btn-bottom-toolbar text-right btn-toolbar-container-out">
-			<button type="submit" class="btn btn-success" name="submit"><?php _el('save'); ?></button>
-			<a class="btn btn-default" onclick="window.history.back();"><?php _el('back'); ?></a>
+			<button type="submit" class="btn btn-success" >{{ __('messages.save') }}</button>
+			<a class="btn btn-default" onclick="window.history.back();">{{ __('messages.back') }}</a>
 		</div>
 	</form>
 </div>
@@ -136,25 +144,32 @@ $("#profileform").validate({
 		}
 	},
 	messages: {
-		firstname: {
-			 required:"<?php _el('please_enter_', _l('firstname')) ?>",
-		},
-		lastname: {
-			required:"<?php _el('please_enter_', _l('lastname')) ?>",
-		},
-		mobile_no: 'Please enter a valid 10 digit mobile number',
-		email: {
-			required:"<?php _el('please_enter_', _l('email')) ?>",
-            email:"<?php _el('please_enter_valid_', _l('email')) ?>",
-		},
-		newpassword: {
-			minlength: "<?php _el('password_min_length_must_be_', 8) ?>",
-		},
-		role: {
-			required:"<?php _el('please_select_', _l('role')) ?>",
-		},
+		 firstname: {
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.firstname')] ) }}",
+        },
+        lastname: {
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.lastname')] ) }}",
+        },
+        mobile_no: 'Please enter a valid 10 digit mobile number',
+        email: {
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.email')] ) }}",
+            email:"{{ __('messages.please_enter_valid_', ['Name' => __('messages.email')]) }}"
+        },        
+        password: {
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.password')] ) }}",
+            minlength: "{{ __('messages.password_min_length_must_be_', ['Name'=>8]) }}",
+        },
+        confirm_password: {
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.password')] ) }}",
+            equalTo: "{{ __('messages.conf_password_donot_match') }}",
+        }, 
+        role: {
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.role')] ) }}",
+        },
 	}
 });  
 
 </script>
+
+@stop
 

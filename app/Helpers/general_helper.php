@@ -114,6 +114,20 @@ function app_generate_hash()
 }
 
 /**
+ * Gets the role by identifier.
+ *
+ * @param  int  $id  The identifier
+ *
+ * @return str  The role by identifier.
+ */
+function get_role_by_id($id)
+{
+	$role = App\Role::find($id);
+
+	return $role->name;
+}
+
+/**
  * Gets the email template for the passed slug.
  *
  * @param  str  $slug  The slug name of the template

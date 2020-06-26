@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Facades\Illuminate\Http\Request;
 use App\User;
 
 class Authentication extends Model
@@ -52,7 +53,7 @@ class Authentication extends Model
 		// 		$this->create_autologin($user->id);
 		// 	}
 
-		// 	$this->update_login_info($user->id);
+		 	$this->update_login_info($user->id);
 
 		 	return true;
 		 }
@@ -60,10 +61,15 @@ class Authentication extends Model
 		 return false;
     }
 
-    // public function checkLogin()
-    // {
-    // 	if($this->login)
-    // }
+    /**
+	 * Update login info on autologin
+	 *
+	 * @param int  $user_id  The user identifier
+	 */
+	private function update_login_info($user_id)
+	{
+		User::where('id',$user_id)->update(array('last_ip'=>Request::ip(),'last_login'=>date('Y-m-d H:i:s')));
+	}
 
     /**
 	 *
