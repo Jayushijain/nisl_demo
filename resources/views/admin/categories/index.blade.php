@@ -40,6 +40,8 @@
         @endif
 
         <!-- Listing table -->
+        <form>
+            <input type="hidden" name="_token" value={{ csrf_token() }}>
         <div class="panel-body table-responsive">
             <table id="categories_table" class="table  table-bordered table-striped">
                 <thead>
@@ -95,6 +97,7 @@
                 </tbody>
             </table>
         </div>
+        </form>
         <!-- /Listing table -->
     </div>
     <!-- /Panel -->
@@ -132,8 +135,9 @@
     </div>
 </div>
 <!-- /Add form modal -->
-
+@section('scripts')
 <script type="text/javascript">
+    
 
 $(function() {
 
@@ -179,11 +183,7 @@ function change_status(obj)
         checked = 1;
     }
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
+   
 
     $.ajax({
         url: "{{ route('categories_update_status') }}",
@@ -194,7 +194,6 @@ function change_status(obj)
         },
         success: function(msg)
         {
-            alert(msg);
             if (msg=='true')
             {
                 jGrowlAlert("{{ __('messages._activated',['Name' => __('messages.category')]) }}", 'success');
@@ -277,8 +276,9 @@ function delete_selected()
     },
     function()
     {
+
         $.ajax({
-            url:BASE_URL+'admin/categories/delete_selected',
+            url: "{{ route('categories_delete_selected') }}",
             type: 'POST',
             data: {
               ids:category_ids
@@ -309,5 +309,5 @@ function delete_selected()
 }
 
 </script>
-
+@stop
 @stop

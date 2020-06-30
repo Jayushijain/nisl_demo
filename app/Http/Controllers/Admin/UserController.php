@@ -103,7 +103,7 @@ class UserController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		$input = $request->except(['_token']);
+		$input = $request->except(['_method', '_token']);
 		$user  = User::find($id);
 
 		if ($request->newpassword == NULL)
@@ -122,9 +122,33 @@ class UserController extends Controller
 		if ($update)
 		{
 			set_alert('success', __('messages._updated_successfully', ['Name' => __('messages.user')]));
-			log_activity("User Updated [ID: $user->id]");
 
 			return redirect('/admin/users');
+		}
+	}
+
+
+	/**
+	 * Toggles the user status to Active or Inactive
+	 */
+	public function update_status(Request $request)
+	{
+		$user_id        = $request->user_id;
+		$user           = User::find($user_id);
+		$input['is_active'] = $request->is_active;
+
+		$update = $user->update($input);
+
+		if ($update)
+		{
+			if ($request->is_active == 1)
+			{
+				echo 'true';
+			}
+			else
+			{
+				echo 'false';
+			}
 		}
 	}
 
@@ -140,14 +164,29 @@ class UserController extends Controller
 
 		if ($user->delete())
 		{
-            log_activity("User Deleted [ID: $user->id]");
 			echo 'true';
 		}
 		else
 		{
 			echo 'false';
 		}
+	}
 
+	/**
+	 * Deletes multiple category records
+	 */
+	public function delete_selected(Request $request)
+	{
+		$ids     = $request->ids;
+		$deleted = User::destroy($ids);
 
+		if ($deleted)
+		{
+			echo 'true';
+		}
+		else
+		{
+			echo 'false';
+		}		
 	}
 }

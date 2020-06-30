@@ -325,10 +325,10 @@ switches.forEach(function(html) {
 										</li>
 										@endif
 
-										<li @if (is_active_controller('emails')) {{ 'class="active"' }} @endif ><a href="{{-- url('admin/emails') --}}">Email Templates</a></li>
+										<li @if (is_active_controller('emails')) {{ 'class="active"' }} @endif ><a href="{{ route('emails.index') }}">Email Templates</a></li>
 										@if (has_permissions('settings', 'view'))
 										<li @if (is_active_controller('settings')) {{ 'class="active"' }} @endif>
-											<a href="{{-- url('admin/settings') --}}">		
+											<a href="{{ route('settings.index') }}">		
 												<span>{{ __('messages.settings') }}</span>
 											</a>
 										</li>
@@ -356,5 +356,13 @@ switches.forEach(function(html) {
 		<!-- /Page content -->
 	</div>
 	<!-- /Page container -->
+	<script type="text/javascript">
+		$.ajaxSetup({
+         headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            }); 
+	</script>
+	@yield('scripts')
 </body>
 </html>

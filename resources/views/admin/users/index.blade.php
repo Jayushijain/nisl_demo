@@ -176,7 +176,7 @@ function change_status(obj)
     }  
 
     $.ajax({
-        url:BASE_URL+'admin/users/update_status',
+        url: "{{ route('users_update_status') }}",
         type: 'POST',
         data: {
             user_id: obj.id,
@@ -266,7 +266,7 @@ function delete_selected()
     function()
     {
         $.ajax({
-            url:BASE_URL+'admin/users/delete_selected',
+            url: "{{ route('users_delete_selected') }}",
             type: 'POST',
             data: {
               ids:user_ids

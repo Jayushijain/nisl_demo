@@ -1,3 +1,7 @@
+@extends('layouts.admin')
+
+@section('content')
+
 <!-- Page header -->
 <div class="page-header page-header-default">
   <div class="page-header-content">
@@ -10,7 +14,7 @@
   <div class="breadcrumb-line">
     <ul class="breadcrumb">
       <li>
-        <a href="<?php echo base_url('admin/dashboard'); ?>"><i class="icon-home2 position-left"></i><?php _el('dashboard'); ?></a>
+        <a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('messages.dashboard') }}</a>
       </li>
       <li class="active">
         Email Templates
@@ -30,27 +34,27 @@
           <tr>
             <th width="40%">Name</th>            
             <th width="52%">Subject</th>            
-            <?php if (has_permissions('email_templates','edit')) { ?>
+            @if (has_permissions('email_templates','edit')) 
             <th width="8%" class="text-center">
-              <?php _el('actions'); ?>
+              {{ __('messages.actions') }}
             </th>
-            <?php } ?>
+            @endif
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($templates as $key => $template) { ?>
+          @foreach ($templates as $key => $template) 
           <tr>
-           <td><?php echo ucfirst($template['name']);?></td>            
-           <td><?php echo ucfirst($template['subject']);?></td>
+           <td>{{ ucfirst($template->name) }}</td>            
+           <td>{{ ucfirst($template->subject) }}</td>
             <td class="text-center">
-              <?php if (has_permissions('email_templates','edit')) { ?>
-                <a data-popup="tooltip" data-placement="top"  title="<?php _el('edit') ?>" href="<?php echo site_url('admin/emails/email-template/').$template['id']; ?>" id="<?php echo $template['id']; ?>" class="text-info">
+              @if (has_permissions('email_templates','edit')) 
+                <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.edit') }}" href="{{ route('emails.edit',$template->id) }}" id="{{ $template->id }}" class="text-info">
                   <i class="icon-pencil7"></i>
                 </a>
-              <?php } ?>
+              @endif
             </td>
           </tr>
-          <?php } ?>
+          @endforeach
         </tbody>
       </table>     
     </div>
@@ -73,4 +77,6 @@ $(function() {
     $('div.dataTables_length select').addClass('datatable-select');
  });    
 </script>
+
+@stop
 

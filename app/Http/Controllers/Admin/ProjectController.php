@@ -124,4 +124,23 @@ class ProjectController extends Controller
             echo 'false';
         }
 	}
+
+	/**
+	 * Deletes multiple project records
+	 */
+	public function delete_selected(Request $request)
+	{
+		$ids     = $request->ids;
+		$deleted = Project::destroy($ids);
+
+		if ($deleted)
+		{
+			echo 'true';
+		}
+		else
+		{
+			echo 'false';
+		}
+		
+	}
 }

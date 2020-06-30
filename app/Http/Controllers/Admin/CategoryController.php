@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Category;
 
 class CategoryController extends Controller
 {
@@ -66,32 +65,29 @@ class CategoryController extends Controller
 		}
 	}
 
-    /**
-     * Toggles the category status to Active or Inactive
-     */
-    public function update_status(Request $request)
-    {
-        echo $request->is_active();
-        
-       // $category = Category::find($id);
-       // $input['updated_at'] = date('Y-m-d H:i:s');
+	/**
+	 * Toggles the category status to Active or Inactive
+	 */
+	public function update_status(Request $request)
+	{
+		$category_id        = $request->category_id;
+		$category           = Category::find($category_id);
+		$input['is_active'] = $request->is_active;
 
-       //  $update = $category->update($input);
+		$update = $category->update($input);
 
-       //  if ($update)
-       //  {
-       //      if ($this->input->post('is_active') == 1)
-       //      {
-       //          echo 'true';
-       //      }
-       //      else
-       //      {
-       //          echo 'false';
-       //      }
-       //  }
-
-       //  log_activity("Category Status Updated [ID: $category_id]");
-    }
+		if ($update)
+		{
+			if ($request->is_active == 1)
+			{
+				echo 'true';
+			}
+			else
+			{
+				echo 'false';
+			}
+		}
+	}
 
 	/**
 	 * Display the specified resource.
@@ -166,24 +162,22 @@ class CategoryController extends Controller
 		}
 	}
 
-    /**
-     * Deletes multiple category records
-     */
-    // public function delete_selected()
-    // {
-    //     $where   = $this->input->post('ids');
-    //     $deleted = $this->categories->delete_many($where);
+	/**
+	 * Deletes multiple category records
+	 */
+	public function delete_selected(Request $request)
+	{
+		$ids     = $request->ids;
+		$deleted = Category::destroy($ids);
 
-    //     if ($deleted)
-    //     {
-    //         $ids = implode(',', $where);
-    //         log_activity("Categories Deleted [IDs: $ids] ");
-
-    //         echo 'true';
-    //     }
-    //     else
-    //     {
-    //         echo 'false';
-    //     }
-    // }
+		if ($deleted)
+		{
+			echo 'true';
+		}
+		else
+		{
+			echo 'false';
+		}
+		
+	}
 }

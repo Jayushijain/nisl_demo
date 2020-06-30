@@ -1,3 +1,7 @@
+@extends('layouts.admin')
+
+@section('content')
+
 <!-- Page header -->
 <div class="page-header page-header-default">
 	<div class="page-header-content">
@@ -10,19 +14,21 @@
 	<div class="breadcrumb-line">
 		<ul class="breadcrumb">
 			<li>
-				<a href="<?php echo base_url('admin/dashboard'); ?>"><i class="icon-home2 position-left"></i><?php _el('dashboard'); ?></a>	
+				<a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('messages.dashboard') }}</a>	
 			</li>
 			<li>
-				<a href="<?php echo base_url('admin/emails'); ?>">Email Templates</a>
+				<a href="{{ route('emails.index') }}">Email Templates</a>
 			</li>
-			<li class="active"><?php _el('edit'); ?></li>
+			<li class="active">{{ __('messages.edit') }}</li>
 		</ul>
 	</div>
 </div>
 <!-- /Page header -->
 <!-- Content area -->
 <div class="content">
-	<form action="<?php echo base_url('admin/emails/email_template/').$template['id']; ?>" id="templateform" method="POST">
+	<form action="{{ route('emails.update',$template->id) }}" id="templateform" method="POST">
+		{{ method_field('PATCH') }}
+		{{ csrf_field() }}
 		<div class="row">
 			<div class="col-md-6">
 				<!-- Panel -->
@@ -32,7 +38,7 @@
 						<div class="row">
 							<div class="col-md-12">
 								<h5 class="panel-title">
-									<strong>Edit Temaplate: <?php echo $template['name']; ?></strong>
+									<strong>Edit Temaplate: {{ $template->name }}</strong>
 								</h5>
 								<hr/>
 							</div>
@@ -44,22 +50,22 @@
 						<div class="row">
 							<div class="col-md-12">
 								<div class="form-group">									
-									<label><?php _el('name'); ?>:</label>
-									<input type="text" class="form-control" readonly="readonly" data-popup="tooltip" title="Can not change template name" data-placement="top" value="<?php echo $template['name']; ?>">
+									<label>{{ __('messages.name') }}:</label>
+									<input type="text" class="form-control" readonly="readonly" data-popup="tooltip" title="Can not change template name" data-placement="top" value="{{ $template->name }}">
 								</div>
 								<div class="form-group">					
 									<label>Slug:</label>
-									<input type="text" class="form-control" readonly="readonly" data-popup="tooltip" title="Can not change template slug" data-placement="top" value="<?php echo $template['slug']; ?>">
+									<input type="text" class="form-control" readonly="readonly" data-popup="tooltip" title="Can not change template slug" data-placement="top" value="{{ $template->slug }}">
 								</div>
 								<div class="form-group">
 									<small class="req text-danger">*</small>						
 									<label>Subject:</label>
-									<input type="text" class="form-control" placeholder="Subject" id="subject" name="subject" value="<?php echo $template['subject']; ?>">
+									<input type="text" class="form-control" placeholder="Subject" id="subject" name="subject" value="{{ $template->subject }}">
 								</div>
 								<div class="form-group">
 									<small class="req text-danger">*</small>						
 									<label>Message Body:</label>
-									<textarea name="message" id="message" class="form-control summernote" rows="10"><?php echo $template['message']; ?></textarea>
+									<textarea name="message" id="message" class="form-control summernote" rows="10">{{ $template->message }}</textarea>
 									<div id="validation_msg"></div>
 								</div>
 							</div>
@@ -84,15 +90,14 @@
 					<div class="panel-body">
 						<div class="well">
 				                    <dl class="dl-horizontal">
-					                    <?php 
-					                    $placeholders = unserialize($template['placeholders']);
+					                    @php 
+					                    $placeholders = unserialize($template->placeholders);
 					                    asort($placeholders);
-					                    foreach ($placeholders as $key => $value) 
-					                    	{					                    	
-					                    ?>
-											<dt><?php echo $value; ?></dt>
-											<dd><a data-popup="tooltip" title="Click to add" data-placement="top" href="javascript:void(0);" class="copy"><?php echo $key; ?></a></dd>											
-										<?php } ?>
+					                    @endphp
+					                    @foreach ($placeholders as $key => $value)
+											<dt>{{ $value }}</dt>
+											<dd><a data-popup="tooltip" title="Click to add" data-placement="top" href="javascript:void(0);" class="copy">{{ $key }}</a></dd>
+										@endforeach
 									</dl>
 								</div>
 					</div>
@@ -102,8 +107,8 @@
 			</div>
 		</div>
 		<div class="btn-bottom-toolbar text-right btn-toolbar-container-out">
-		<button type="submit" class="btn btn-success" name="submit"><?php _el('save'); ?></button>
-		<a class="btn btn-default" onclick="window.history.back();"><?php _el('back'); ?></a>
+		<button type="submit" class="btn btn-success">{{ __('messages.save') }}</button>
+		<a class="btn btn-default" onclick="window.history.back();">{{ __('messages.back') }}</a>
 		</div>
 	</form>
 </div>
@@ -144,3 +149,4 @@ $("#templateform").validate({
 });  
 </script>
 
+@stop
