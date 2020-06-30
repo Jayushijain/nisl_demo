@@ -98,7 +98,7 @@ class ProjectController extends Controller
 		if ($project->update($input))
 		{
 			set_alert('success', __('messages._updated_successfully', ['Name' => __('messages.project')]));
-			log_activity("Project Updated [ID:$id]");
+			log_activity("Project Updated [ID:$project->id]");
 
 			return redirect('admin/projects');
 		}
@@ -117,10 +117,30 @@ class ProjectController extends Controller
         if ($project->delete())
         {
             echo 'true';
+            log_activity("Project Deleted [ID:$project->id]");
         }
         else
         {
             echo 'false';
         }
+	}
+
+	/**
+	 * Deletes multiple project records
+	 */
+	public function delete_selected(Request $request)
+	{
+		$ids     = $request->ids;
+		$deleted = Project::destroy($ids);
+
+		if ($deleted)
+		{
+			echo 'true';
+		}
+		else
+		{
+			echo 'false';
+		}
+		
 	}
 }

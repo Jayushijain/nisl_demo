@@ -93,7 +93,7 @@
   <!-- /Panel -->
 </div>
 <!-- /Content area -->
-
+@section('scripts')
 <script type="text/javascript">
 
 $(function() {
@@ -188,7 +188,7 @@ function delete_selected()
     function()
     {
         $.ajax({
-            url:BASE_URL+'admin/projects/delete_selected',
+            url: '{{ route('projects_delete_selected') }}',
             type: 'POST',
             data: {
               ids:project_ids
@@ -219,4 +219,5 @@ function delete_selected()
 }
 </script>
 
+@stop
 @stop

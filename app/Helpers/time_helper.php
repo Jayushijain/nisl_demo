@@ -35,4 +35,54 @@ function display_date_time($datetime)
 	}
 }
 
+/**
+ * Converts timestamp into words
+ *
+ * @param int  $timestamp  The timestamp
+ */
+function time_to_words($datetime)
+{
+	$timestamp = strtotime($datetime);
+	$time_difference = time() - $timestamp;
+
+	$seconds = $time_difference;
+	$minutes = round($time_difference / 60);
+	$hours   = round($time_difference / 3600);
+	$days    = round($time_difference / 86400);
+	$weeks   = round($time_difference / 604800);
+	$months  = round($time_difference / 2419200);
+	$years   = round($time_difference / 29030400);
+
+	if ($seconds <= 60)
+	{
+		$time_in_words = $minutes.' '.__('messages.seconds');
+	}
+	elseif ($minutes <= 60)
+	{
+		$time_in_words = ($minutes == 1) ? $minutes.' '.__('messages.minute') : $minutes.' '.__('messages.minutes');
+	}
+	elseif ($hours <= 24)
+	{
+		$time_in_words = ($hours == 1) ? $hours.' '.__('messages.hour') : $hours.' '.__('messages.hours');
+	}
+	elseif ($days <= 7)
+	{
+		$time_in_words = ($days == 1) ? $days.' '.__('messages.day') : $days.' '.__('messages.days');
+	}
+	elseif ($weeks <= 4)
+	{
+		$time_in_words = ($weeks == 1) ? $weeks.' '.__('messages.week') : $weeks.' '.__('messages.weeks');
+	}
+	elseif ($months <= 12)
+	{
+		$time_in_words = ($months == 1) ? $months.' '.__('messages.month') : $months.' '.__('messages.months');
+	}
+	elseif ($years)
+	{
+		$time_in_words = ($years == 1) ? $years.' '.__('messages.year') : $years.' '.__('messages.years');
+	}
+
+	return $time_in_words;
+}
+
 ?>

@@ -1,28 +1,33 @@
+@extends('layouts.admin')
+
+@section('content')
+
 <!-- Page header -->
 <div class="page-header page-header-default">
     <div class="page-header-content">
         <div class="page-title">
             <h4>
-                <span class="text-semibold"><?php _el('add_user'); ?></span>
+                <span class="text-semibold">{{ __('messages.add_user') }}</span>
             </h4>
         </div>
     </div>
     <div class="breadcrumb-line">
         <ul class="breadcrumb">
             <li>
-                <a href="<?php echo base_url('admin/dashboard'); ?>"><i class="icon-home2 position-left"></i><?php _el('dashboard'); ?></a>
+                <a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('messages.dashboard') }}</a>
             </li>
             <li>
-                <a href="<?php echo base_url('admin/users'); ?>"><?php _el('users'); ?></a>
+                <a href="{{ route('users.index') }}">{{ __('messages.users') }}</a>
             </li>
-            <li class="active"><?php _el('add'); ?></li>
+            <li class="active">{{ __('messages.add') }}</li>
         </ul>
     </div>
 </div>
 <!-- /Page header -->
 <!-- Content area -->
 <div class="content">
-    <form action="<?php echo base_url('admin/users/add'); ?>" id="userform" method="POST">
+    <form action="{{ route('users.store') }}" id="userform" method="POST">
+        {{ csrf_field() }}
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
             <!-- Panel -->
@@ -32,7 +37,7 @@
                     <div class="row">
                         <div class="col-md-10">
                             <h5 class="panel-title">
-                                <strong><?php _el('user'); ?></strong>
+                                <strong>{{ __('messages.user') }}</strong>
                             </h5>
                         </div>
                     </div>
@@ -44,43 +49,42 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <small class="req text-danger">* </small>
-                                <label><?php _el('firstname'); ?>:</label>
-                                <input type="text" class="form-control" placeholder="<?php _el('firstname'); ?>" id="firstname" name="firstname">
+                                <label>{{ __('messages.firstname') }}:</label>
+                                <input type="text" class="form-control" placeholder="{{ __('messages.firstname') }}" id="firstname" name="firstname">
                             </div>
                             <div class="form-group">
                                 <small class="req text-danger">* </small>
-                                <label><?php _el('lastname'); ?>:</label>
-                                <input type="text" class="form-control" placeholder="<?php _el('lastname'); ?>" id="lastname" name="lastname">
+                                <label>{{ __('messages.lastname') }}:</label>
+                                <input type="text" class="form-control" placeholder="{{ __('messages.lastname') }}" id="lastname" name="lastname">
                             </div>
                             <div class="form-group">
                                 <small class="req text-danger">* </small>
-                                <label><?php _el('email'); ?>:</label>
-                                <input type="text" class="form-control" placeholder="<?php _el('email'); ?>" id="email" name="email" class="email">
+                                <label>{{ __('messages.email') }}:</label>
+                                <input type="text" class="form-control" placeholder="{{ __('messages.email') }}" id="email" name="email" class="email">
                             </div>
                             <div class="form-group">
                                 <small class="req text-danger">* </small>
-                                <label><?php _el('mobile_no'); ?>:</label>
-                                <input type="text" class="form-control" placeholder="<?php _el('mobile_no'); ?>" id="mobile_no" name="mobile_no">
+                                <label>{{ __('messages.mobile_no') }}:</label>
+                                <input type="text" class="form-control" placeholder="{{ __('messages.mobile_no') }}" id="mobile_no" name="mobile_no">
                             </div>
                             <div class="form-group">
                                 <small class="req text-danger">* </small>
-                                <label><?php _el('password'); ?>:</label>
-                                <input type="password" class="form-control" placeholder="<?php _el('password'); ?>" id="password" name="password" >
+                                <label>{{ __('messages.password') }}:</label>
+                                <input type="password" class="form-control" placeholder="{{ __('messages.password') }}" id="password" name="password" >
                             </div>
                             <div class="form-group">
                                 <small class="req text-danger">* </small>
-                                <label><?php _el('confirm_password'); ?>:</label>
-                                <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="<?php _el('confirm_password'); ?>">
+                                <label>{{ __('messages.confirm_password') }}:</label>
+                                <input type="password" id="confirm_password"  class="form-control" placeholder="{{ __('messages.confirm_password') }}">
                             </div>
                             <div class="form-group">
                                 <small class="req text-danger">* </small>
-                                <label><?php _el('role'); ?></label>
+                                <label>{{ __('messages.role') }}</label>
                                 <select class="select" name="role" id="role">
-                                    <option value=""><?php _el('please_select_', _l('role')); ?></option>
-                                    <?php 
-                                    foreach ($roles as $key => $role){ ?>
-                                    <option value="<?php echo $role['id']; ?>" name="role"><?php echo $role['name']; ?></option>
-                                    <?php } ?>
+                                    <option value="">{{ __('messages.please_select_',['Name'=>__('messages.role')] ) }}</option>
+                                    @foreach ($roles as $key => $role)
+                                    <option value="{{ $role->id }}" name="role">{{ $role->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -92,41 +96,41 @@
             </div>
         </div>
         <div class="btn-bottom-toolbar text-right btn-toolbar-container-out">
-            <button type="submit" class="btn btn-success" name="submit"><?php _el('save'); ?></button>
-            <a class="btn btn-default" onclick="window.history.back();"><?php _el('back'); ?></a>
+            <button type="submit" class="btn btn-success" >{{ __('messages.save') }}</button>
+            <a class="btn btn-default" onclick="window.history.back();">{{ __('messages.back') }}</a>
         </div>
     </form>
 </div>
 <!-- /Content area -->
 
 <script type="text/javascript">
-var BASE_URL = "<?php echo base_url(); ?>";
+var BASE_URL = "<?php echo url('/'); ?>";
 
-$.validator.addMethod("emailExists", function(value, element) 
-{
-    var mail_id = $(element).val();
-    var ret_val = '';
-    $.ajax({
-        url:BASE_URL+'admin/authentication/email_exists',
-        type: 'POST',
-        data: { email: mail_id },
-        async: false,
-        success: function(msg) 
-        {   
-            if(msg==1)
-            {
-                ret_val = false;
-            }
-            else
-            {
-                ret_val = true;
-            }
-        }
-    }); 
+// $.validator.addMethod("emailExists", function(value, element) 
+// {
+//     var mail_id = $(element).val();
+//     var ret_val = '';
+//     $.ajax({
+//         url:BASE_URL+'admin/authentication/email_exists',
+//         type: 'POST',
+//         data: { email: mail_id },
+//         async: false,
+//         success: function(msg) 
+//         {   
+//             if(msg==1)
+//             {
+//                 ret_val = false;
+//             }
+//             else
+//             {
+//                 ret_val = true;
+//             }
+//         }
+//     }); 
 
-    return ret_val;
+//     return ret_val;
             
-}, "<?php _el('email_exists') ?>");
+// }, "{-- __('messags.email_exists') --}");
 
 $("#userform").validate({
     rules: {
@@ -160,28 +164,30 @@ $("#userform").validate({
     },
     messages: {
         firstname: {
-            required:"<?php _el('please_enter_', _l('firstname')) ?>",
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.firstname')] ) }}",
         },
         lastname: {
-            required:"<?php _el('please_enter_', _l('lastname')) ?>",
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.lastname')] ) }}",
         },
         mobile_no: 'Please enter a valid 10 digit mobile number',
         email: {
-            required:"<?php _el('please_enter_', _l('email')) ?>",
-            email:"<?php _el('please_enter_valid_', _l('email')) ?>"
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.email')] ) }}",
+            email:"{{ __('messages.please_enter_valid_', ['Name' => __('messages.email')]) }}"
         },        
         password: {
-            required:"<?php _el('please_enter_', _l('password')) ?>",
-            minlength: "<?php _el('password_min_length_must_be_', 8) ?>",
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.password')] ) }}",
+            minlength: "{{ __('messages.password_min_length_must_be_', ['Name'=>8]) }}",
         },
         confirm_password: {
-            required:"<?php _el('please_enter_', _l('password')) ?>",
-            equalTo: "<?php _el('conf_password_donot_match') ?>",
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.password')] ) }}",
+            equalTo: "{{ __('messages.conf_password_donot_match') }}",
         }, 
         role: {
-            required:"<?php _el('please_select_', _l('role')) ?>",
+            required:"{{ __('messages.please_enter_',['Name' => __('messages.role')] ) }}",
         },
     },
 }); 
     	
 </script>
+
+@stop
