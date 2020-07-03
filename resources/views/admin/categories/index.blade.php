@@ -186,7 +186,7 @@ function change_status(obj)
    
 
     $.ajax({
-        url: "{{ route('categories_update_status') }}",
+        url: "{{ route('categories.update_status') }}",
         type: 'POST',
         data: {
             category_id: obj.id,
@@ -278,7 +278,7 @@ function delete_selected()
     {
 
         $.ajax({
-            url: "{{ route('categories_delete_selected') }}",
+            url: "{{ route('categories.delete_selected') }}",
             type: 'POST',
             data: {
               ids:category_ids

@@ -108,9 +108,7 @@ $(function() {
 
     //add class to style style datatable select box
     $('div.dataTables_length select').addClass('datatable-select');
- });  
-
-var BASE_URL = "<?php echo url('/'); ?>";
+ });
 
 /**
  * Deletes a single record when clicked on delete icon
@@ -188,7 +186,7 @@ function delete_selected()
     function()
     {
         $.ajax({
-            url: '{{ route('projects_delete_selected') }}',
+            url: '{{ route('projects.delete_selected') }}',
             type: 'POST',
             data: {
               ids:project_ids
