@@ -30,6 +30,10 @@ class UserPermission extends Model
 		{
 			$arr[1] == 'delete';
 		}
+		else if($arr[1] == 'store' || $arr[1] == 'add')
+		{
+			$arr[1] == 'create';
+		}
 
 
 		$permission = $this->where([

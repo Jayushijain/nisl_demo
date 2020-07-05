@@ -47,7 +47,7 @@ class SettingController extends Controller
 					'value' => $value
 				];
 
-				Setting::insert($data);
+				Setting::insert($input);
 			}
 
 			if ($settig_exists == 1)

@@ -164,17 +164,61 @@ class RoleController extends Controller
 	 */
 	public function delete_selected(Request $request)
 	{
-		$ids     = $request->ids;
-		$deleted = Role::destroy($ids);
+		$roles                  = $request->ids;
+		$deleted_role_ids       = array();
+		$deleted_role_names     = array();
+		$not_deleted_role_names = array();
+		$output                 = '';
 
-		if ($deleted)
+		foreach ($roles as $role)
 		{
-			echo 'true';
+			$users = User::where('role', $role)->get();
+
+			if (empty($users))
+			{
+				array_push($deleted_role_ids, $role);
+				array_push($deleted_role_names, get_role_by_id($role));
+				$result = $this->roles->delete($role);
+			}
+			else
+			{
+				array_push($not_deleted_role_names, get_role_by_id($role));
+			}
+		}
+
+		$deleted_roles     = implode(', ', $deleted_role_names);
+		$not_deleted_roles = implode(', ', $not_deleted_role_names);
+
+		$data['type'] = 'success';
+
+		if (empty($deleted_role_ids) && !empty($not_deleted_role_names))
+		{
+			$output .= (count($not_deleted_role_names) == 1) ? __('messages.single_role_not_deleted_msg', ['Name' => $not_deleted_roles]) : __('messages.multiple_roles_not_deleted_msg',['Name' => $not_deleted_roles]);
+
+			$data['type'] = 'error';
+		}
+		else
+
+		if (!empty($deleted_role_ids) && !empty($not_deleted_role_names))
+		{
+			$output .= (count($deleted_role_ids) == 1) ? __('messages.single_role_deleted_msg', ['Name'=>$deleted_roles]) : __('messages.multiple_roles_deleted_msg', ['Name'=>$deleted_roles]);
+
+			$output .= (count($not_deleted_role_names) == 1) ? __('messages.single_role_not_deleted_msg', ['Name' => $not_deleted_roles]) : __('messages.multiple_roles_not_deleted_msg', ['Name' => $not_deleted_roles]);
 		}
 		else
 		{
-			echo 'false';
+			$output .= (count($deleted_role_ids) == 1) ? __('messages.single_role_deleted_msg', ['Name'=>$deleted_roles]) : __('messages.multiple_roles_deleted_msg', ['Name'=>$deleted_roles]);
 		}
+
+		$data['deleted_role_ids'] = $deleted_role_ids;
+		$data['output']           = $output;
+
+		if (!empty($deleted_role_ids))
+		{
+			$deleted_role_ids = implode(',', $deleted_role_ids);
+		}
+
+		echo json_encode($data);
 	}
 
 	/**
@@ -230,3 +274,4 @@ class RoleController extends Controller
 		return $permissions;
 	}
 }
+		

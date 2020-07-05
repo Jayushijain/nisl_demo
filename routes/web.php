@@ -22,13 +22,15 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::match(['GET', 'POST'], '/admin/authentication', 'Admin\AuthenticationController@index');
 
+Route::match(['GET', 'POST'], '/admin/forgot_password', 'Admin\AuthenticationController@forgot_password')->name('forgot_password');
+
+Route::match(['GET', 'POST'], '/admin/reset_password', 'Admin\AuthenticationController@reset_password')->name('reset_password');
+
 Route::middleware(['logincheck'])->group(function ()
 {
 	Route::get('/admin/dashboard', 'Admin\DashboardController@index')->name('dashboard');
 
 	Route::get('/admin/logout', 'Admin\AuthenticationController@logout')->name('logout');
-
-	Route::match(['GET', 'POST'], '/admin/forgot_password', 'Admin\AuthenticationController@forgot_password')->name('forgot_password');
 
 	Route::middleware(['check.permissions'])->group(function ()
 	{
@@ -56,16 +58,16 @@ Route::middleware(['logincheck'])->group(function ()
 
 		Route::resource('/admin/email_templates', 'Admin\EmailController');
 
+		Route::resource('/admin/settings', 'Admin\SettingController');
+
+		Route::post('/admin/settings/add', 'Admin\SettingController@store')->name('settings.add');
+
+		Route::resource('/admin/roles', 'Admin\RoleController');
+
+		Route::get('/admin/roles/delete/{id}', 'Admin\RoleController@destroy')->name('roles.delete');
+
+		Route::post('/admin/roles/delete_selected', 'Admin\RoleController@delete_selected')->name('roles.delete_selected');
+
 	});
-
-	Route::resource('/admin/settings', 'Admin\SettingController');
-
-	Route::post('/admin/settings/add', 'Admin\SettingController@create')->name('settings_add');
-
-	Route::resource('/admin/roles', 'Admin\RoleController');
-
-	Route::get('/admin/roles/delete/{id}', 'Admin\RoleController@destroy')->name('roles.delete');
-
-	Route::post('/admin/roles/delete_selected', 'Admin\RoleController@delete_selected')->name('roles.delete_selected');
 
 });

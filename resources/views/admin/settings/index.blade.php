@@ -178,7 +178,7 @@
 			</div>
 		</div>			
 		<div class="btn-bottom-toolbar text-right btn-toolbar-container-out">
-			<button type="submit" class="btn btn-success">{{ __('messages.save') }} {{ __('messages.settings') }}</button>			
+			<button type="submit" class="btn btn-success" >{{ __('messages.save') }} {{ __('messages.settings') }}</button>			
 		</div>
 	</form>
 </div>
@@ -194,7 +194,7 @@ $( "#settings_form" ).on( "submit", function( event ) {
 	event.preventDefault();
 
 	$.ajax({
-		url: "{{ route('settings_add') }}",
+		url: "{{ route('settings.add') }}",
 		type: 'POST',
 		data: $(this).serialize(),
 		success: function(msg)
