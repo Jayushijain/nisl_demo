@@ -8,7 +8,7 @@
 	<div class="panel panel-body login-form">
 		<div class="text-center">
 			<div class="icon-object border-warning text-warning"><i class="icon-spinner11"></i></div>
-			<h5 class="content-group">{{ __('messages.forgot_password') }}<small class="display-block">{{ __('messages.forgot_password_instructions') }}</small></h5>
+			<h5 class="content-group">{!! __('messages.forgot_password') !!}<small class="display-block">{!! __('messages.forgot_password_instructions') !!}</small></h5>
 		</div>
 
 		@include('admin.includes.alerts')
@@ -23,7 +23,7 @@
 		<button type="submit" class="btn bg-blue btn-block" name="submit">{{  __('messages.confirm') }}<i class="icon-arrow-right14 position-right"></i></button>
 		</div>
 
-		<a href="{{ url('/admin/authentication') }}">{{ __('messages.login') }}></a>
+		<a href="{{ url('/admin/authentication') }}">{{ __('messages.login') }}</a>
 		
 	</div>
 </form>			

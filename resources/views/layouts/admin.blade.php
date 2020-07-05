@@ -319,13 +319,13 @@ switches.forEach(function(html) {
 									<ul>
 										@if (has_permissions('roles', 'view'))
 										<li @if (is_active_controller('roles')) {{ 'class="active"' }} @endif >
-											<a href="{{-- url('admin/roles') --}}">
+											<a href="{{ route('roles.index') }}">
 												<span>{{ __('messages.roles') }}</span>
 											</a>
 										</li>
 										@endif
 
-										<li @if (is_active_controller('emails')) {{ 'class="active"' }} @endif ><a href="{{ route('emails.index') }}">Email Templates</a></li>
+										<li @if (is_active_controller('emails')) {{ 'class="active"' }} @endif ><a href="{{ route('email_templates.index') }}">Email Templates</a></li>
 										@if (has_permissions('settings', 'view'))
 										<li @if (is_active_controller('settings')) {{ 'class="active"' }} @endif>
 											<a href="{{ route('settings.index') }}">		

@@ -2,26 +2,26 @@
 
 namespace App;
 
+use App\User;
+use Facades\Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Facades\Illuminate\Http\Request;
-use App\User;
 
 class Authentication extends Model
 {
-    public function login($email, $password, $remember)
-    {
-    	if ((!empty($email)) && (!empty($password)))
+	public function login($email, $password, $remember)
+	{
+		if ((!empty($email)) && (!empty($password)))
 		{
-			$user = User::where('email',$email)->first();
+			$user = User::where('email', $email)->first();
 
-		 	if ($user)
-		 	{
+			if ($user)
+			{
 				if ($user->password != md5($password))
 				{
 					return ['invalid_password' => true, 'id' => $user->id];
 				}
-		 	}
+			}
 			else
 			{
 				return ['invalid_email' => true];
@@ -45,33 +45,34 @@ class Authentication extends Model
 				'user_logged_in' => true
 			];
 
-		 	session($user_data);
-		 	
+			session($user_data);
 
-		// 	if ($remember)
-		// 	{
-		// 		$this->create_autologin($user->id);
-		// 	}
+// 	if ($remember)
 
-		 	$this->update_login_info($user->id);
+// 	{
 
-		 	return true;
-		 }
+// 		$this->create_autologin($user->id);
+			// 	}
 
-		 return false;
-    }
+			$this->update_login_info($user->id);
 
-    /**
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Update login info on autologin
 	 *
 	 * @param int  $user_id  The user identifier
 	 */
 	private function update_login_info($user_id)
 	{
-		User::where('id',$user_id)->update(array('last_ip'=>Request::ip(),'last_login'=>date('Y-m-d H:i:s')));
+		User::where('id', $user_id)->update(array('last_ip' => Request::ip(), 'last_login' => date('Y-m-d H:i:s')));
 	}
 
-    /**
+	/**
 	 *
 	 * Generates new password key for the user to reset the password
 	 *
@@ -81,7 +82,7 @@ class Authentication extends Model
 	 */
 	public function forgot_password($email)
 	{
-		$user = DB::table('users')->where('email',$email)->first();
+		$user = DB::table('users')->where('email', $email)->first();
 
 		if ($user)
 		{
@@ -109,7 +110,7 @@ class Authentication extends Model
 
 				$message = get_settings('email_header');
 
-				$user = DB::table('users')->where('email',$email)->first();
+				$user = DB::table('users')->where('email', $email)->first();
 
 				if ($user->is_admin)
 				{
@@ -158,28 +159,121 @@ class Authentication extends Model
 		return ['invalid_user' => true];
 	}
 
-    /**
-	 * Deletes an autologin when user logs out
-	 */
-	private function delete_autologin()
-	{
-		$this->load->helper('cookie');
+// public function verify_email($signup_key)
 
-		if ($cookie = get_cookie('autologin', true))
+// {
+
+// 	$this->db->where('signup_key', $signup_key);
+
+// 	if ($this->db->get('users')->num_rows() == 1)
+
+// 	{
+
+// 		$this->db->set('is_email_verified', 1);
+
+// 		$this->db->set('is_active', 1);
+
+// 		$this->db->where('signup_key', $signup_key);
+
+// 		$this->db->update('users');
+
+// 		return true;
+
+// 	}
+
+// 	return null;
+
+// }
+
+	/**
+	 * Resets user password after successful validation of the key
+	 *
+	 * @param  int   $user_id       The user identifier
+	 * @param  str   $new_pass_key  The new pass key
+	 * @param  str   $password      The password
+	 *
+	 * @return bool  True if the password is reset, Null otherwise
+	 */
+	public function reset_password($user_id, $new_pass_key, $password)
+	{
+		if (!$this->can_reset_password($user_id, $new_pass_key))
 		{
-			$data = unserialize($cookie);
-			$this->user_autologin->delete($data['user_id'], md5($data['key']));
-			delete_cookie('autologin', 'aal');
+			return ['expired' => true];
+		}
+
+		$update = User::where([
+			['id', $user_id],
+			['new_pass_key', $new_pass_key]
+		])->update(array('password' => md5($password)));
+
+		if ($update)
+		{
+			$input['new_pass_key']           = null;
+			$input['new_pass_key_requested'] = null;				
+			$input['last_password_change']   = date('Y-m-d H:i:s');
+			User::where([
+				['id', $user_id],
+				['new_pass_key', $new_pass_key]
+			])->update($input);
+
+			return true;
+		}
+
+			return null;
+	}
+
+		/**
+		 * Determines if the key is not expired or doesn't exists in database
+		 *
+		 * @param  int  $user_id       The user identifier
+		 * @param  str  $new_pass_key  The new pass key
+		 *
+		 * @return bool True if key is active, False otherwise
+		 */
+		public function can_reset_password($user_id, $new_pass_key)
+		{
+			$user = User::where([
+				['id', $user_id],
+				['new_pass_key', $new_pass_key]])->get();
+
+			if ($user)
+			{
+				$timestamp_now_minus_1_hour = time() - (60 * 60);
+				$new_pass_key_requested     = strtotime($user->new_pass_key_requested);
+
+				if ($timestamp_now_minus_1_hour > $new_pass_key_requested)
+				{
+					return false;
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		/**
+		 * Deletes an autologin when user logs out
+		 */
+		private function delete_autologin()
+		{
+			$this->load->helper('cookie');
+
+			if ($cookie = get_cookie('autologin', true))
+			{
+				$data = unserialize($cookie);
+				$this->user_autologin->delete($data['user_id'], md5($data['key']));
+				delete_cookie('autologin', 'aal');
+			}
+		}
+
+		/**
+		 * Clears the autologin & session
+		 */
+		public function logout()
+		{
+			//$this->delete_autologin();
+
+			session()->flush();
 		}
 	}
-
-    /**
-	 * Clears the autologin & session
-	 */
-	public function logout()
-	{
-		//$this->delete_autologin();
-
-		session()->flush();
-	}
-}

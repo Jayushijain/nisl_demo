@@ -25,6 +25,7 @@ class VerifyCsrfToken extends Middleware
         "http://nisl_demo.test/admin/users/update_status",
         "http://nisl_demo.test/admin/users/delete_selected",
         "http://nisl_demo.test/admin/settings/add",
+        "http://nisl_demo.test/admin/roles/delete_selected",
     ];
 
     /**

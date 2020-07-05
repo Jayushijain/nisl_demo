@@ -48,7 +48,7 @@
            <td>{{ ucfirst($template->subject) }}</td>
             <td class="text-center">
               @if (has_permissions('email_templates','edit')) 
-                <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.edit') }}" href="{{ route('emails.edit',$template->id) }}" id="{{ $template->id }}" class="text-info">
+                <a data-popup="tooltip" data-placement="top"  title="{{ __('messages.edit') }}" href="{{ route('email_templates.edit',$template->id) }}" id="{{ $template->id }}" class="text-info">
                   <i class="icon-pencil7"></i>
                 </a>
               @endif
