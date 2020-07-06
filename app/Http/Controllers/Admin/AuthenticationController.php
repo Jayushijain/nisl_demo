@@ -27,25 +27,21 @@ class AuthenticationController extends Controller
 			if (is_array($user) && isset($user['user_inactive']))
 			{
 				set_alert('error', __('messages.your_account_is_not_active'));
-				log_activity("Inactive User Tried to Login [Email: $email]", $user['id']);
 				return redirect('/admin/authentication');
 			}
 			elseif (is_array($user) && isset($user['invalid_email']))
 			{
 				set_alert('error', __('messages.incorrect_email'));
-				log_activity("Non Existing User Tried to Login [Email: $email]");
 				return redirect('/admin/authentication');
 			}
 			elseif (is_array($user) && isset($user['invalid_password']))
 			{
 				set_alert('error', __('messages.incorrect_password'));
-				log_activity("Failed Login Attempt With Incorrect Password [Email: $email]", $user['id']);
 				return redirect('/admin/authentication');
 			}
 			elseif ($user == false)
 			{
 				set_alert('error', __('messages.incorrect_email_or_password'));
-				log_activity("Failed Login Attempt [Email: $email]");
 				return redirect('/admin/authentication');
 			}
 
@@ -105,7 +101,7 @@ class AuthenticationController extends Controller
 	 * @param int  $user_id       The user identifier
 	 * @param str  $new_pass_key  The new pass key
 	 */
-	public function reset_password($user_id = 0, $new_pass_key = '')
+	public function reset_password(Request $request,$user_id = 0, $new_pass_key = '')
 	{
 		if (($user_id == 0) || ($new_pass_key == ''))
 		{
@@ -149,7 +145,6 @@ class AuthenticationController extends Controller
 	 */
 	public function logout()
 	{
-		log_activity('User Logged Out [Email: '.get_loggedin_info('email').']', get_loggedin_user_id());
 		Authentication::logout();
 		return redirect('/admin/authentication');
 	}

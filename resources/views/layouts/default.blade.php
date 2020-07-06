@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title><?php echo $this->page_title; ?></title>
+    <title>{{-- $page_title --}}</title>
     <link rel="stylesheet" href="{{ asset('themes/default/css/bootstrap.min.css') }}" >
-    <link rel="stylesheet" href="<?php echo base_url('assets/themes/default/css/style.css'); ?>" >
-    <script type="text/javascript" src="<?php echo base_url('assets/admin/js/core/libraries/jquery.min.js'); ?>"></script>
-    <script type="text/javascript" src="<?php echo base_url('assets/admin/js/plugins/forms/validation/validate.min.js'); ?>"></script>
+    <link rel="stylesheet" href="{{ asset('themes/default/css/style.css') }}" >
+    <script type="text/javascript" src="{{ asset('admin/js/core/libraries/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('admin/js/plugins/forms/validation/validate.min.js') }}"></script>
 </head>
 
 <body>
@@ -20,26 +20,27 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="<?php echo site_url(); ?>"><?php echo get_settings('company_name'); ?></a>
+          <a class="navbar-brand" href="{{ url('/') }}">{{ get_settings('company_name') }}</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right"> 
-            <?php if (is_user_logged_in()) { ?>  
-                <li><a href="#">Welcome <?php echo get_loggedin_info('username'); ?></a></li>
-                <li><a href="<?php echo site_url('authentication/logout'); ?>"><?php _el('logout'); ?></a></li>
-            <?php } else { ?>           
-                <li><a href="<?php echo site_url('authentication/index') ?>">Login</a></li>
-                <li><a href="<?php echo site_url('authentication/signup') ?>">Sign Up</a></li>
-            <?php } ?>    
+            @if (is_user_logged_in())  
+                <li><a href="#">Welcome {{ get_loggedin_info('username') }}</a></li>
+                <li><a href="{{ url('/authentication/logout') }}">{{ __('messages.logout') }}</a></li>
+            @else           
+                <li><a href="{{ url('/authentication/index') }}">Login</a></li>
+                <li><a href="{{ url('/authentication/signup') }}">Sign Up</a></li>
+            @endif    
             </ul>
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
-	<?php echo $content; ?>
+	@yield('content')
 	  <hr>
       <footer>
-        <p>&copy; <?php echo date('Y') ?> <?php echo get_settings('company_name'); ?></a></p>
+        <p>&copy; {{ date('Y') }} {{ get_settings('company_name') }}</a></p>
       </footer>
     </div>
+    @yield('scripts')
 </body>
 </html>

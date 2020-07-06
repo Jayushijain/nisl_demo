@@ -136,7 +136,7 @@ function get_role_by_id($id)
  */
 function get_email_template($slug)
 {
-	$result = DB::table('email_templates')->where('slug', $slug)->get();
+	$result = DB::table('email_templates')->where('slug', $slug)->first();
 
 	if ($result)
 	{

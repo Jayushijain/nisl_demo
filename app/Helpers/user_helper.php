@@ -34,7 +34,7 @@ function get_loggedin_info($info)
  */
 function get_user_info($id, $info = '')
 {
-	$user = DB::table('users')->where('id',$id)->get();
+	$user = DB::table('users')->where('id',$id)->first();
 
 	if ($info != '')
 	{

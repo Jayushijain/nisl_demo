@@ -1,33 +1,34 @@
-<?php	
+@php 
+	
 	$alert_class = $alert_type = '';
 
-	if ($this->session->flashdata('success'))
+	if (Session::has('success'))
 	{
 		$alert_class = $alert_type = 'success';
 	}
-	elseif ($this->session->flashdata('warning'))
+	elseif (Session::has('warning'))
 	{
 		$alert_class = $alert_type =  'warning';
 	}
-	elseif ($this->session->flashdata('error'))
+	elseif (Session::has('error'))
 	{
 		$alert_class = 'danger';
 		$alert_type = 'error';
 	}
-	elseif ($this->session->flashdata('info'))
+	elseif (Session::has('info'))
 	{
 		$alert_class = $alert_type =  'info';
 	}
- 
-	if ($this->session->flashdata($alert_type))
+
+	if (session::has($alert_type))
 	{
-	?>
+	@endphp
 <div class="row">
 	<div class="col-lg-12">
-		<div class="alert alert-<?php echo $alert_class; ?>">
+		<div class="alert alert-{{ $alert_class }}">
 			<button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
-			<?php echo $this->session->flashdata($alert_type); ?>
+			{{ session($alert_type) }}
 		</div>
 	</div>
 </div>
-<?php } ?>
+@php } @endphp

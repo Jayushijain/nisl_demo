@@ -114,11 +114,11 @@ class Authentication extends Model
 
 				if ($user->is_admin)
 				{
-					$reset_password_link = url('authentication/reset_password/').$user->id.'/'.$user->new_pass_key;
+					$reset_password_link = url('/authentication/reset_password/').$user->id.'/'.$user->new_pass_key;
 				}
 				else
 				{
-					$reset_password_link = url('authentication/reset_password/').$user->id.'/'.$user->new_pass_key;
+					$reset_password_link = url('/authentication/reset_password/').$user->id.'/'.$user->new_pass_key;
 				}
 
 				$find = [
@@ -131,8 +131,8 @@ class Authentication extends Model
 				];
 
 				$replace = [
-					$user['firstname'],
-					$user['lastname'],
+					$user->firstname,
+					$user->lastname,
 					$email,
 					$reset_password_link,
 					get_settings('email_signature'),
@@ -159,31 +159,21 @@ class Authentication extends Model
 		return ['invalid_user' => true];
 	}
 
-// public function verify_email($signup_key)
+	public function verify_email($signup_key)
+	{
+		$user = User::where('signup_key', $signup_key)->count();
 
-// {
+		if ($user == 1)
+		{
+			$input['is_email_verified'] = 1;
+			$input['is_active'] = 1;
+			User::where('signup_key', $signup_key)->update($input);
 
-// 	$this->db->where('signup_key', $signup_key);
+			return true;
+		}
 
-// 	if ($this->db->get('users')->num_rows() == 1)
-
-// 	{
-
-// 		$this->db->set('is_email_verified', 1);
-
-// 		$this->db->set('is_active', 1);
-
-// 		$this->db->where('signup_key', $signup_key);
-
-// 		$this->db->update('users');
-
-// 		return true;
-
-// 	}
-
-// 	return null;
-
-// }
+		return null;
+	}
 
 	/**
 	 * Resets user password after successful validation of the key
@@ -209,7 +199,7 @@ class Authentication extends Model
 		if ($update)
 		{
 			$input['new_pass_key']           = null;
-			$input['new_pass_key_requested'] = null;				
+			$input['new_pass_key_requested'] = null;
 			$input['last_password_change']   = date('Y-m-d H:i:s');
 			User::where([
 				['id', $user_id],
@@ -219,61 +209,61 @@ class Authentication extends Model
 			return true;
 		}
 
-			return null;
+		return null;
 	}
 
-		/**
-		 * Determines if the key is not expired or doesn't exists in database
-		 *
-		 * @param  int  $user_id       The user identifier
-		 * @param  str  $new_pass_key  The new pass key
-		 *
-		 * @return bool True if key is active, False otherwise
-		 */
-		public function can_reset_password($user_id, $new_pass_key)
+	/**
+	 * Determines if the key is not expired or doesn't exists in database
+	 *
+	 * @param  int  $user_id       The user identifier
+	 * @param  str  $new_pass_key  The new pass key
+	 *
+	 * @return bool True if key is active, False otherwise
+	 */
+	public function can_reset_password($user_id, $new_pass_key)
+	{
+		$user = User::where([
+			['id', $user_id],
+			['new_pass_key', $new_pass_key]])->get();
+
+		if ($user)
 		{
-			$user = User::where([
-				['id', $user_id],
-				['new_pass_key', $new_pass_key]])->get();
+			$timestamp_now_minus_1_hour = time() - (60 * 60);
+			$new_pass_key_requested     = strtotime($user->new_pass_key_requested);
 
-			if ($user)
+			if ($timestamp_now_minus_1_hour > $new_pass_key_requested)
 			{
-				$timestamp_now_minus_1_hour = time() - (60 * 60);
-				$new_pass_key_requested     = strtotime($user->new_pass_key_requested);
-
-				if ($timestamp_now_minus_1_hour > $new_pass_key_requested)
-				{
-					return false;
-				}
-
-				return true;
+				return false;
 			}
 
-			return false;
+			return true;
 		}
 
-		/**
-		 * Deletes an autologin when user logs out
-		 */
-		private function delete_autologin()
+		return false;
+	}
+
+	/**
+	 * Deletes an autologin when user logs out
+	 */
+	private function delete_autologin()
+	{
+		$this->load->helper('cookie');
+
+		if ($cookie = get_cookie('autologin', true))
 		{
-			$this->load->helper('cookie');
-
-			if ($cookie = get_cookie('autologin', true))
-			{
-				$data = unserialize($cookie);
-				$this->user_autologin->delete($data['user_id'], md5($data['key']));
-				delete_cookie('autologin', 'aal');
-			}
-		}
-
-		/**
-		 * Clears the autologin & session
-		 */
-		public function logout()
-		{
-			//$this->delete_autologin();
-
-			session()->flush();
+			$data = unserialize($cookie);
+			$this->user_autologin->delete($data['user_id'], md5($data['key']));
+			delete_cookie('autologin', 'aal');
 		}
 	}
+
+	/**
+	 * Clears the autologin & session
+	 */
+	public function logout()
+	{
+		//$this->delete_autologin();
+
+		session()->flush();
+	}
+}

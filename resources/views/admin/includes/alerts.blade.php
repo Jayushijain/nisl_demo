@@ -1,7 +1,6 @@
 @php 
 	
 	$alert_class = $alert_type = '';
-	Session::flash('success_message', 'Password Changed');
 
 	if (Session::has('success'))
 	{

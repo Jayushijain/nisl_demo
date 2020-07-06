@@ -11,14 +11,28 @@
 |
  */
 
-Route::get('/', function ()
-{
-	return view('welcome');
-});
+// Route::get('/', function ()
+// {
+// 	return view('welcome');
+// });
 
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::match(['GET', 'POST'], '/authentication', 'AuthenticationController@index')->name('authentication');
+
+Route::post('/authentication/signup','AuthenticationController@signup');
+
+Route::post('/authentication/email_exists','AuthenticationController@email_exists');
+
+Route::match(['GET', 'POST'], '/authentication/forgot_password', 'AuthenticationController@forgot_password')->name('authentication.forgot_password');
+
+Route::match(['GET', 'POST'], '/authentication/reset_password', 'AuthenticationController@reset_password')->name('authentication.reset_password');
+
+Route::get('/','HomeController@index');
+
+Route::get('/authentication/logout', 'AuthenticationController@logout');
 
 Route::match(['GET', 'POST'], '/admin/authentication', 'Admin\AuthenticationController@index');
 

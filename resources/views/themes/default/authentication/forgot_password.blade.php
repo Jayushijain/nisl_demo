@@ -1,21 +1,30 @@
+@extends('layouts.default')
+
+@section('content')
+
 <div class="container" style="margin-top:100px;">
 	
 	<div class="row">
 		<div class="col-md-4 col-md-offset-4">
-            <?php $this->load->view('themes/default/includes/alerts'); ?>
-            <h5 class="content-group"><?php _el('forgot_password'); ?>
-            <br><small class="display-block"><?php _el('forgot_password_instructions'); ?></small></h5>
-			<form id="recovery_form" method="post" action="<?php echo site_url('authentication/forgot_password') ?>">
+            @include('themes.default.includes.alerts')
+            <h5 class="content-group">{{ __('messages.forgot_password') }}
+            <br><small class="display-block">{!! __('messages.forgot_password_instructions') !!}</small></h5>
+			<form id="recovery_form" method="post" action="{{ route('authentication.forgot_password') }}">
+                {{ csrf_field() }}
 				<div class="form-group">
 					<small class="req text-danger">* </small>
-                    <label><?php _el('email'); ?></label>
-                    <input type="email" class="form-control" placeholder="<?php _el('email'); ?>" name="email" id="email">
+                    <label>{{ __('messages.email') }}</label>
+                    <input type="email" class="form-control" placeholder="{{ __('messages.email') }}" name="email" id="email">
 				</div>						
-				<button type="submit" class="btn btn-primary btn-block" name="submit"><?php _el('confirm'); ?></button>
-                <a href="<?php echo site_url('authentication') ?>"><?php _el('login');?></a>
+				<button type="submit" class="btn btn-primary btn-block" >{{ __('messages.confirm') }}</button>
+                <a href="{{ route('authentication') }}">{{ __('messages.login') }}</a>
 			</form>
 		</div>
 	</div>	
+
+    @stop
+
+    @section('scripts')
 <script type="text/javascript">
 $("#recovery_form").validate({
         rules: {
@@ -26,9 +35,11 @@ $("#recovery_form").validate({
         },
         messages: {
             email: {
-                required:"<?php _el('please_enter_', _l('email')) ?>",
-                email:"<?php _el('please_enter_valid_',_l('email')) ?>"
+                required:"{{ __('messages.please_enter_', ['Name' => __('messages.email')]) }}",
+                email:"{{ __('messages.please_enter_valid_',['Name' => __('messages.email')]) }}"
             }
         }
     }); 
 </script>
+
+@stop
