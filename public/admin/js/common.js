@@ -19,16 +19,19 @@ function jGrowlAlert(message, alertType) {
  * @param {obj}  obj  The checkbox object
  */
 function select_all(obj) {
-
+    console.log('before')
     if (obj.checked) {
         $(".checkbox").each(function() {
             $(this).prop("checked", "checked");
             $(this).parent().addClass("checked");
+            console.log('yes')
         });
     } else {
         $('.checkbox').each(function() {
             this.checked = false;
             $(this).parent().removeClass("checked");
+            console.log('no')
         });
     }
+    console.log('after')
 }

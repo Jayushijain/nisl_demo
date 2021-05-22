@@ -7,9 +7,9 @@
 
 <!-- Auto Logout after 15 mins (15*60=900 seconds) of inactivity -->
 <meta http-equiv="refresh" content="900;url={{-- url('authentication/autologout') --}}" />
-<meta name="csrf_token" content="{{ csrf_token() }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
-<title>{{-- $data['page_title'] --}}</title>
+<title>{{ $page_title }}</title>
 
 <!-- Global stylesheets -->
 <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
@@ -87,6 +87,8 @@ border-radius: 3px;
 <script type="text/javascript" src="{{ asset('admin/js/core/app.js') }}"></script>
 
 <script type="text/javascript" src="{{ asset('admin/js/common.js') }}"></script>
+
+@stack('head-css-script')
 
 <script type="text/javascript">
 
@@ -253,7 +255,7 @@ switches.forEach(function(html) {
 						<i class="caret"></i>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-right">						
-						<li><a href="{{-- url('admin/profile/edit') --}}" >{{ __('messages.edit_profile') }}</a></li>
+						<li><a href="{{ route('admin.edit',get_loggedin_user_id()) }}" >{{ __('messages.edit_profile') }}</a></li>
 						<li><a href="{{ route('logout') }}" >{{ __('messages.logout') }}</a></li>
 					</ul>
 				</li>
@@ -282,63 +284,7 @@ switches.forEach(function(html) {
 						</div>
 					</div>
 					<!-- /User menu -->
-					<!-- Main navigation -->
-					<div class="sidebar-category sidebar-category-visible">
-						<div class="category-content no-padding">
-							<ul class="navigation navigation-main navigation-accordion">
-								<li @if (is_active_controller('dashboard')) {{'class="active"'}} @endif>
-									<a href="{{ url('admin/dashboard') }}"><i class="icon-home4"></i> <span>{{ __('messages.dashboard') }}</span></a>
-								</li>
-									
-								@if (has_permissions('categories', 'view'))
-								<li @if (is_active_controller('categories')) {{'class="active"' }} @endif >
-									<a href="{{ route('categories.index') }}">
-										<i class="icon-menu6"></i>
-										<span>{{ __('messages.categories') }}</span>
-									</a>
-								</li>
-								@endif
-								@if (has_permissions('projects', 'view')) 
-								<li @if (is_active_controller('projects')) {{ 'class="active"' }}@endif >
-									<a href="{{ route('projects.index') }}">
-										<i class="icon-menu3"></i>
-										<span>{{ __('messages.projects') }}</span>
-									</a>
-								</li>
-								@endif
-								@if (has_permissions('users', 'view'))	
-								<li @if (is_active_controller('users')){{  'class="active"' }} @endif>
-									<a href="{{ route('users.index') }}">
-										<i class="icon-users4"></i>
-										<span>{{ __('messages.users') }}</span>
-									</a>
-								</li>
-								@endif
-								<li>
-									<a href="#"><i class="icon-cog3"></i><span>Setup</span></a>
-									<ul>
-										@if (has_permissions('roles', 'view'))
-										<li @if (is_active_controller('roles')) {{ 'class="active"' }} @endif >
-											<a href="{{ route('roles.index') }}">
-												<span>{{ __('messages.roles') }}</span>
-											</a>
-										</li>
-										@endif
-
-										<li @if (is_active_controller('emails')) {{ 'class="active"' }} @endif ><a href="{{ route('email_templates.index') }}">Email Templates</a></li>
-										@if (has_permissions('settings', 'view'))
-										<li @if (is_active_controller('settings')) {{ 'class="active"' }} @endif>
-											<a href="{{ route('settings.index') }}">		
-												<span>{{ __('messages.settings') }}</span>
-											</a>
-										</li>
-										@endif
-									</ul>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<!-- /Main navigation -->
+					@include('layouts.sidebar')
 				</div>
 			</div>
 			<!-- /Main sidebar -->
@@ -356,13 +302,7 @@ switches.forEach(function(html) {
 		<!-- /Page content -->
 	</div>
 	<!-- /Page container -->
-	<script type="text/javascript">
-		$.ajaxSetup({
-         headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            }); 
-	</script>
+	<script src="{{ asset('admin/js/scripts') }}/common.js"></script>
 	@yield('scripts')
 </body>
 </html>

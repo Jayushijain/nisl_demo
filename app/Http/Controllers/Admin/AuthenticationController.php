@@ -17,6 +17,8 @@ class AuthenticationController extends Controller
 
 	public function login(Request $request)
 	{
+		set_page_title(__('messages.login'));
+
 		if ($request->email)
 		{
 			$email    = $request->email;
@@ -63,7 +65,7 @@ class AuthenticationController extends Controller
 	 */
 	public function forgot_password(Request $request)
 	{
-		//$this->set_page_title(_l('forgot_password'));
+		set_page_title(__('messages.forgot_password'));
 
 		if ($request->email)
 		{
@@ -108,7 +110,7 @@ class AuthenticationController extends Controller
 			return redirect('/admin/authentication');
 		}
 
-		//$this->set_page_title(_l('reset_password'));
+		set_page_title(__('messages.reset_password'));
 
 		if (!Authentication::can_reset_password($user_id, $new_pass_key))
 		{

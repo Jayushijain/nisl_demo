@@ -7,6 +7,7 @@ use App\Role;
 use App\User;
 use App\UserPermission;
 use Illuminate\Http\Request;
+use Log;
 
 class RoleController extends Controller
 {
@@ -17,9 +18,15 @@ class RoleController extends Controller
 	 */
 	public function index()
 	{
-		$roles = Role::get();
-
-		return view('admin.roles.index', compact('roles'));
+		try{
+			$roles = Role::get();
+			$data['page_title'] = 'Roles';
+			return view('admin.roles.index', compact('roles'),$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('RoleController index: '.$e->getMessage());
+            return redirect('/admin/dashboard')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -29,9 +36,15 @@ class RoleController extends Controller
 	 */
 	public function create()
 	{
-		$permissions_data = $this->default_permissions();
-
-		return view('admin.roles.create', compact('permissions_data'));
+		try{
+			$permissions_data = $this->default_permissions();
+			$data['page_title'] = 'Roles';
+			return view('admin.roles.create', compact('permissions_data'),$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('RoleController index: '.$e->getMessage());
+            return redirect('/admin/roles')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -42,28 +55,22 @@ class RoleController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		$input                = $request->except(['_token']);
-		$input['permissions'] = serialize($request->permissions);
+		try{
+			$input                = $request->except(['_token']);
+			$input['permissions'] = serialize($request->permissions);
+			$insert = Role::insert($input);
 
-		$insert = Role::insert($input);
-
-		if ($insert)
-		{
-			set_alert('success', __('messages._added_successfully', ['Name' => __('messages.role')]));
-
-			return redirect('/admin/roles');
+			if ($insert)
+			{
+				set_alert('success', __('messages._added_successfully', ['Name' => __('messages.role')]));
+				return redirect('/admin/roles');
+			}
 		}
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show($id)
-	{
-		//
+		catch (\RuntimeException $e){
+            Log::info('RoleController store: '.$e->getMessage());
+            return redirect('/admin/roles')->with('error_message','Something went wrong! Please Try again');
+        }
+		
 	}
 
 	/**
@@ -74,11 +81,17 @@ class RoleController extends Controller
 	 */
 	public function edit($id)
 	{
-		$permissions_data = $this->default_permissions();
-		$users            = User::where('role', $id)->get();
-		$role             = Role::find($id);
-
-		return view('admin.roles.edit', compact('permissions_data', 'role', 'users'));
+		try{
+			$permissions_data = $this->default_permissions();
+			$users            = User::where('role', $id)->get();
+			$role             = Role::find($id);
+			$data['page_title'] = 'Roles';
+			return view('admin.roles.edit', compact('permissions_data', 'role', 'users'),$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('RoleController edit: '.$e->getMessage());
+            return redirect('/admin/roles')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -90,51 +103,55 @@ class RoleController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		$role                 = Role::find($id);
-		$input                = $request->except(['_method', '_token']);
-		$input['permissions'] = serialize($request->permissions);
+		try{
+			$role                 = Role::find($id);
+			$input                = $request->except(['_method', '_token']);
+			$input['permissions'] = serialize($request->permissions);
+			$update = $role->update($input);
+			$users = User::where('role', $id)->get();
 
-		$update = $role->update($input);
-
-		$users = User::where('role', $id)->get();
-
-		if ($users != null)
-		{
-			$user_id_array = array();
-
-			foreach ($users as $key => $value)
+			if ($users != null)
 			{
-				$user_id = $value['id'];
-				array_push($user_id_array, $user_id);
-			}
+				$user_id_array = array();
 
-			$delete_permissions = UserPermission::whereIn('user_id', $user_id_array)->delete();
-			$roles              = Role::find($id);
-			$permissions        = unserialize($roles->permissions);
-
-			foreach ($permissions as $key => $permission)
-			{
-				foreach ($permission as $key_permission => $value)
+				foreach ($users as $key => $value)
 				{
-					foreach ($user_id_array as $key_user_id => $user)
+					$user_id = $value['id'];
+					array_push($user_id_array, $user_id);
+				}
+
+				$delete_permissions = UserPermission::whereIn('user_id', $user_id_array)->delete();
+				$roles              = Role::find($id);
+				$permissions        = unserialize($roles->permissions);
+
+				foreach ($permissions as $key => $permission)
+				{
+					foreach ($permission as $key_permission => $value)
 					{
-						$input = array
-							(
-							'user_id'      => $user,
-							'features'     => $key,
-							'capabilities' => $value
-						);
-						$user_permissions_insert = UserPermission::insert($input);
+						foreach ($user_id_array as $key_user_id => $user)
+						{
+							$input = array
+								(
+								'user_id'      => $user,
+								'features'     => $key,
+								'capabilities' => $value
+							);
+							$user_permissions_insert = UserPermission::insert($input);
+						}
 					}
 				}
-			}
 
-			if ($update)
-			{
-				set_alert('success', __('messages._updated_successfully', ['Name' => __('messages.role')]));
-				return redirect('/admin/roles');
+				if ($update)
+				{
+					set_alert('success', __('messages._updated_successfully', ['Name' => __('messages.role')]));
+					return redirect('/admin/roles');
+				}
 			}
 		}
+		catch (\RuntimeException $e){
+            Log::info('RoleController update: '.$e->getMessage());
+            return redirect('/admin/roles')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -145,18 +162,22 @@ class RoleController extends Controller
 	 */
 	public function destroy($id)
 	{
-		$role = Role::find($id);
-		$users = User::where('role', $id)->get();
+		try{
+			$role = Role::find($id);
+			$users = User::where('role', $id)->get();
 
-		if (empty($users))
-		{
-			$result =$role->delete();
-			echo 'true';
+			if (empty($users))
+			{
+				$result =$role->delete();
+				echo 'true';
+			}
+			else
+				echo 'false';
 		}
-		else
-		{
-			echo 'false';
-		}
+		catch (\RuntimeException $e){
+            Log::info('RoleController destroy: '.$e->getMessage());
+            return redirect('/admin/roles')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -164,61 +185,67 @@ class RoleController extends Controller
 	 */
 	public function delete_selected(Request $request)
 	{
-		$roles                  = $request->ids;
-		$deleted_role_ids       = array();
-		$deleted_role_names     = array();
-		$not_deleted_role_names = array();
-		$output                 = '';
+		try{
+			$roles                  = $request->ids;
+			$deleted_role_ids       = array();
+			$deleted_role_names     = array();
+			$not_deleted_role_names = array();
+			$output                 = '';
 
-		foreach ($roles as $role)
-		{
-			$users = User::where('role', $role)->get();
-
-			if (empty($users))
+			foreach ($roles as $role)
 			{
-				array_push($deleted_role_ids, $role);
-				array_push($deleted_role_names, get_role_by_id($role));
-				$result = $this->roles->delete($role);
+				$users = User::where('role', $role)->get();
+
+				if (empty($users))
+				{
+					array_push($deleted_role_ids, $role);
+					array_push($deleted_role_names, get_role_by_id($role));
+					$result = $this->roles->delete($role);
+				}
+				else
+				{
+					array_push($not_deleted_role_names, get_role_by_id($role));
+				}
+			}
+
+			$deleted_roles     = implode(', ', $deleted_role_names);
+			$not_deleted_roles = implode(', ', $not_deleted_role_names);
+
+			$data['type'] = 'success';
+
+			if (empty($deleted_role_ids) && !empty($not_deleted_role_names))
+			{
+				$output .= (count($not_deleted_role_names) == 1) ? __('messages.single_role_not_deleted_msg', ['Name' => $not_deleted_roles]) : __('messages.multiple_roles_not_deleted_msg',['Name' => $not_deleted_roles]);
+
+				$data['type'] = 'error';
+			}
+			else
+
+			if (!empty($deleted_role_ids) && !empty($not_deleted_role_names))
+			{
+				$output .= (count($deleted_role_ids) == 1) ? __('messages.single_role_deleted_msg', ['Name'=>$deleted_roles]) : __('messages.multiple_roles_deleted_msg', ['Name'=>$deleted_roles]);
+
+				$output .= (count($not_deleted_role_names) == 1) ? __('messages.single_role_not_deleted_msg', ['Name' => $not_deleted_roles]) : __('messages.multiple_roles_not_deleted_msg', ['Name' => $not_deleted_roles]);
 			}
 			else
 			{
-				array_push($not_deleted_role_names, get_role_by_id($role));
+				$output .= (count($deleted_role_ids) == 1) ? __('messages.single_role_deleted_msg', ['Name'=>$deleted_roles]) : __('messages.multiple_roles_deleted_msg', ['Name'=>$deleted_roles]);
 			}
+
+			$data['deleted_role_ids'] = $deleted_role_ids;
+			$data['output']           = $output;
+
+			if (!empty($deleted_role_ids))
+			{
+				$deleted_role_ids = implode(',', $deleted_role_ids);
+			}
+
+			echo json_encode($data);
 		}
-
-		$deleted_roles     = implode(', ', $deleted_role_names);
-		$not_deleted_roles = implode(', ', $not_deleted_role_names);
-
-		$data['type'] = 'success';
-
-		if (empty($deleted_role_ids) && !empty($not_deleted_role_names))
-		{
-			$output .= (count($not_deleted_role_names) == 1) ? __('messages.single_role_not_deleted_msg', ['Name' => $not_deleted_roles]) : __('messages.multiple_roles_not_deleted_msg',['Name' => $not_deleted_roles]);
-
-			$data['type'] = 'error';
-		}
-		else
-
-		if (!empty($deleted_role_ids) && !empty($not_deleted_role_names))
-		{
-			$output .= (count($deleted_role_ids) == 1) ? __('messages.single_role_deleted_msg', ['Name'=>$deleted_roles]) : __('messages.multiple_roles_deleted_msg', ['Name'=>$deleted_roles]);
-
-			$output .= (count($not_deleted_role_names) == 1) ? __('messages.single_role_not_deleted_msg', ['Name' => $not_deleted_roles]) : __('messages.multiple_roles_not_deleted_msg', ['Name' => $not_deleted_roles]);
-		}
-		else
-		{
-			$output .= (count($deleted_role_ids) == 1) ? __('messages.single_role_deleted_msg', ['Name'=>$deleted_roles]) : __('messages.multiple_roles_deleted_msg', ['Name'=>$deleted_roles]);
-		}
-
-		$data['deleted_role_ids'] = $deleted_role_ids;
-		$data['output']           = $output;
-
-		if (!empty($deleted_role_ids))
-		{
-			$deleted_role_ids = implode(',', $deleted_role_ids);
-		}
-
-		echo json_encode($data);
+		catch (\RuntimeException $e){
+            Log::info('RoleController delete_selected: '.$e->getMessage());
+            return redirect('/admin/roles')->with('error_message','Something went wrong! Please Try again');
+        }
 	}
 
 	/**
@@ -229,49 +256,52 @@ class RoleController extends Controller
 	 */
 	public function default_permissions()
 	{
-		$common_permissions = [
-			'view'   => __('messages.view'),
-			'create' => __('messages.create'),
-			'edit'   => __('messages.edit'),
-			'delete' => __('messages.delete')
-		];
+		try{
+			$common_permissions = [
+				'view'   => __('messages.view'),
+				'create' => __('messages.create'),
+				'edit'   => __('messages.edit'),
+				'delete' => __('messages.delete')
+			];
 
-		$permissions = [
-			'users'           => [
-				'name'         => __('messages.users'),
-				'capabilities' => $common_permissions
-
-			],
-			'projects'        => [
-				'name'         => __('messages.projects'),
-				'capabilities' => $common_permissions
-			],
-			'categories'      => [
-				'name'         => __('messages.categories'),
-				'capabilities' => $common_permissions
-			],
-			'roles'           => [
-				'name'         => __('messages.roles'),
-				'capabilities' => $common_permissions
-			],
-			'email_templates' => [
-				'name'         => 'Email Templates',
-				'capabilities' => [
-					'view' => __('messages.view'),
-					'edit' => __('messages.edit')
+			$permissions = [
+				'users'           => [
+					'name'         => __('messages.users'),
+					'capabilities' => $common_permissions
+				],
+				'projects'        => [
+					'name'         => __('messages.projects'),
+					'capabilities' => $common_permissions
+				],
+				'categories'      => [
+					'name'         => __('messages.categories'),
+					'capabilities' => $common_permissions
+				],
+				'roles'           => [
+					'name'         => __('messages.roles'),
+					'capabilities' => $common_permissions
+				],
+				'email_templates' => [
+					'name'         => 'Email Templates',
+					'capabilities' => [
+						'view' => __('messages.view'),
+						'edit' => __('messages.edit')
+					]
+				],
+				'settings'        => [
+					'name'         => __('messages.settings'),
+					'capabilities' => [
+						'view'   => __('messages.view'),
+						'create' => __('messages.create')
+					]
 				]
-			],
-			'settings'        => [
-				'name'         => __('messages.settings'),
-				'capabilities' => [
-					'view'   => __('messages.view'),
-					'create' => __('messages.create')
-				]
-			]
-
-		];
-
-		return $permissions;
+			];
+			return $permissions;
+		}
+		catch (\RuntimeException $e){
+            Log::info('RoleController default_permissions: '.$e->getMessage());
+            return redirect('/admin/roles')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 }
 		

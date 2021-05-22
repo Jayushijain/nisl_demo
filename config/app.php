@@ -228,6 +228,7 @@ return [
         'Helper' => App\Helpers\Helper::class,
         'Form' => Collective\Html\FormFacade::class,
         'Html' => Collective\Html\HtmlFacade::class,
+        'Datatables'   => Yajra\Datatables\Facades\Datatables::class,
     ],
 
 ];

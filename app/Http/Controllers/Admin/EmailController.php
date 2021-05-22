@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\EmailTemplate;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Log;
 
 class EmailController extends Controller
 {
@@ -15,44 +16,19 @@ class EmailController extends Controller
 	 */
 	public function index()
 	{
-        $this->load_default_templates();
-		$templates = EmailTemplate::get();
-
-		return view('admin.emails.index', compact('templates'));
+		try{
+			$this->load_default_templates();
+			$templates = EmailTemplate::get();
+			$data['page_title'] = 'Email';
+			return view('admin.emails.index', compact('templates'),$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('EmailController index: '.$e->getMessage());
+            return redirect('/admin/dashboard')->with('error_message','Something went wrong! Please Try again');
+        }         
 	}
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function create()
-	{
-		//
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @return \Illuminate\Http\Response
-	 */
-	public function store(Request $request)
-	{
-		//
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
+	
 	/**
 	 * Show the form for editing the specified resource.
 	 *
@@ -61,9 +37,16 @@ class EmailController extends Controller
 	 */
 	public function edit($id)
 	{
-		$template = EmailTemplate::find($id);
-
-		return view('admin.emails.email_template', compact('template'));
+		try{
+			$template = EmailTemplate::find($id);
+			$data['page_title'] = 'Email';
+			return view('admin.emails.email_template', compact('template'),$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('EmailController edit: '.$e->getMessage());
+            return redirect()->route('settings.index')->with('error_message','Something went wrong! Please Try again');
+        } 
+		
 	}
 
 	/**
@@ -75,17 +58,22 @@ class EmailController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		$template = EmailTemplate::find($id);
-		$input    = $request->except(['_method', '_token']);
+		try{
+			$template = EmailTemplate::find($id);
+			$input    = $request->except(['_method', '_token']);		
+			$update = $template->update($input);		
 
-		$update = $template->update($input);
-
-		if ($update)
-		{
-			set_alert('success', __('messages._updated_successfully', ['Name'=>'Email Template']));
-
-			return redirect('/admin/emails');
+			if ($update)
+			{
+				set_alert('success', __('messages._updated_successfully', ['Name'=>'Email Template']));
+				return redirect('/admin/email_templates');
+			}
 		}
+		catch (\RuntimeException $e){
+            Log::info('EmailController update: '.$e->getMessage());
+            return redirect()->route('settings.index')->with('error_message','Something went wrong! Please Try again');
+        } 
+		
 	}
 
     /**
@@ -93,36 +81,38 @@ class EmailController extends Controller
      */
     private function load_default_templates()
     {
-        $templates = $this->default_templates();
-
-        foreach ($templates as $template)
-        {
-            $template_exists = EmailTemplate::where('slug',$template['slug'])->count();
-
-            if ($template['name'] != '' && $template['slug'] != '')
-            {
-                if ($template_exists == 0)
-                {
-                    $input = [
-                        'name'         => $template['name'],
-                        'slug'         => $template['slug'],
-                        'placeholders' => serialize($template['placeholders'])
-                    ];
-
-                    EmailTemplate::insert($input);
-                }
-                else
-                {
-                    $input = [
-                        'name'         => $template['name'],
-                        'placeholders' => serialize($template['placeholders'])
-                    ];
-
-                    $template = EmailTemplate::where('slug',$template['slug']);
-                    $template->update($input);
-                }
-            }
-        }
+    	try{
+    		$templates = $this->default_templates();
+	        foreach ($templates as $template)
+	        {
+	            $template_exists = EmailTemplate::where('slug',$template['slug'])->count();
+	            if ($template['name'] != '' && $template['slug'] != '')
+	            {
+	                if ($template_exists == 0)
+	                {
+	                    $input = [
+	                        'name'         => $template['name'],
+	                        'slug'         => $template['slug'],
+	                        'placeholders' => serialize($template['placeholders'])
+	                    ];
+	                    EmailTemplate::insert($input);
+	                }
+	                else
+	                {
+	                    $input = [
+	                        'name'         => $template['name'],
+	                        'placeholders' => serialize($template['placeholders'])
+	                    ];
+	                    $template = EmailTemplate::where('slug',$template['slug']);
+	                    $template->update($input);
+	                }
+	            }
+	        }
+    	}
+    	catch (\RuntimeException $e){
+            Log::info('EmailController update: '.$e->getMessage());
+            return redirect()->route('settings.index')->with('error_message','Something went wrong! Please Try again');
+        }        
     }
 
     /**
@@ -133,43 +123,37 @@ class EmailController extends Controller
      */
     public function default_templates()
     {
-        $templates = [
-            [
-                'name'         => 'Forgot Password',
-                'slug'         => 'forgot-password',
-                'placeholders' => [
-                    '{firstname}'          => 'User Firstname',
-                    '{lastname}'           => 'User Lastname',
-                    '{email}'              => 'User Email',
-                    '{reset_password_url}' => 'Reset Password URL',
-                    '{email_signature}'    => 'Email Signature',
-                    '{company_name}'       => 'Company Name'
-                ]
-            ],
-            [
-                'name'         => 'New User Sign Up',
-                'slug'         => 'new-user-signup',
-                'placeholders' => [
-                    '{firstname}'              => 'User Firstname',
-                    '{lastname}'               => 'User Lastname',
-                    '{email_verification_url}' => 'Email Verification URL',
-                    '{email_signature}'        => 'Email Signature',
-                    '{company_name}'           => 'Company Name'
-                ]
-            ]
-        ];
-
-        return $templates;
+    	try{
+    		$templates = [
+	            [
+	                'name'         => 'Forgot Password',
+	                'slug'         => 'forgot-password',
+	                'placeholders' => [
+	                    '{firstname}'          => 'User Firstname',
+	                    '{lastname}'           => 'User Lastname',
+	                    '{email}'              => 'User Email',
+	                    '{reset_password_url}' => 'Reset Password URL',
+	                    '{email_signature}'    => 'Email Signature',
+	                    '{company_name}'       => 'Company Name'
+	                ]
+	            ],
+	            [
+	                'name'         => 'New User Sign Up',
+	                'slug'         => 'new-user-signup',
+	                'placeholders' => [
+	                    '{firstname}'              => 'User Firstname',
+	                    '{lastname}'               => 'User Lastname',
+	                    '{email_verification_url}' => 'Email Verification URL',
+	                    '{email_signature}'        => 'Email Signature',
+	                    '{company_name}'           => 'Company Name'
+	                ]
+	            ]
+	        ];
+	        return $templates;
+    	}
+    	catch (\RuntimeException $e){
+            Log::info('EmailController default_templates: '.$e->getMessage());
+            return redirect()->route('settings.index')->with('error_message','Something went wrong! Please Try again');
+        }        
     }
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function destroy($id)
-	{
-		//
-	}
 }

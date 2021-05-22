@@ -17,7 +17,7 @@
 				<a href="{{ route('dashboard') }}"><i class="icon-home2 position-left"></i>{{ __('messages.dashboard') }}</a>	
 			</li>
 			<li>
-				<a href="{{ route('emails.index') }}">Email Templates</a>
+				<a href="{{ route('email_templates.index') }}">Email Templates</a>
 			</li>
 			<li class="active">{{ __('messages.edit') }}</li>
 		</ul>
@@ -26,8 +26,8 @@
 <!-- /Page header -->
 <!-- Content area -->
 <div class="content">
-	<form action="{{ route('emails.update',$template->id) }}" id="templateform" method="POST">
-		{{ method_field('PATCH') }}
+	<form action="{{ route('email_templates.update',$template->id) }}" id="templateform" method="POST">
+		
 		{{ csrf_field() }}
 		<div class="row">
 			<div class="col-md-6">

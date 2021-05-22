@@ -158,9 +158,6 @@ $(function() {
     $('div.dataTables_length select').addClass('datatable-select');
  });
 
-
-var BASE_URL = "<?php echo url('/'); ?>";
-
 /**
  * Change status when clicked on the status switch
  *

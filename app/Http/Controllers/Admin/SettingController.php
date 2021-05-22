@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Setting;
 use Illuminate\Http\Request;
+use Log;
 
 class SettingController extends Controller
 {
@@ -15,17 +16,14 @@ class SettingController extends Controller
 	 */
 	public function index()
 	{
-		return view('admin.settings.index');
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function create()
-	{
-		//
+		try{
+			$data['page_title'] = 'Settings';
+			return view('admin.settings.index',$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('SettingController index: '.$e->getMessage());
+            return redirect('/admin/dashboard')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -36,82 +34,43 @@ class SettingController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		foreach ($request->all() as $key => $value)
-		{
-			$settig_exists = Setting::where('name', $key)->count();
-            
-			if ($settig_exists == 0 && $value != '')
+		try{
+			foreach ($request->except('_token') as $key => $value)
 			{
-				$input = [
-					'name'  => $key,
-					'value' => $value
-				];
+				$settig_exists = Setting::where('name', $key)->count();
+	            
+				if ($settig_exists == 0 && $value != '')
+				{
+					$input = [
+						'name'  => $key,
+						'value' => $value
+					];
 
-				Setting::insert($input);
+					Setting::insert($input);
+				}
+
+				if ($settig_exists == 1)
+				{
+					$settings = Setting::where('name', $key)->first();
+
+					if ($settings->value != $value && $value != '')
+					{
+						Setting::where('id', $settings->id)->update(array('value' => $value));
+					}
+					else
+
+					if ($value == '' || $value == null)
+					{
+						$delete = Setting::where('name', $key)->delete();
+					}
+				}
 			}
 
-			if ($settig_exists == 1)
-			{
-				$settings = Setting::where('name', $key)->get();
-
-				if ($settings->value != $value && $value != '')
-				{
-					Setting::where('id', $settings->id)->update(array('value' => $value));
-				}
-				else
-
-				if ($value == '' || $value == null)
-				{
-					$delete = Setting::where('name', $key)->delete();
-				}
-			}
+			echo 'true';
 		}
-
-		echo 'true';
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function update(Request $request, $id)
-	{
-		//
-	}
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function destroy($id)
-	{
-		//
+		catch (\RuntimeException $e){
+            Log::info('SettingController store: '.$e->getMessage());
+            return redirect('/admin/settings')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 }

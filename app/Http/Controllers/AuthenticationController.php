@@ -231,12 +231,12 @@ class AuthenticationController extends Controller
     /**
      * Checks if user with provided email id exists or not
      */
-    public function email_exists(Request $request)
-    {
-        $exists = User::where('email', $request->email)->count();
+    // public function email_exists(Request $request)
+    // {
+    //     $exists = User::where('email', $request->email)->count();
 
-        echo $exists;
-    }
+    //     echo $exists;
+    // }
 
     /**
      * Does logout

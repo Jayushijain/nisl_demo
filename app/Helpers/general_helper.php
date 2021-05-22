@@ -148,4 +148,22 @@ function get_email_template($slug)
 	}
 }
 
+/**
+	 * Set the page title.
+	 * @param str $page_title The title to be set.
+	 *
+	 * @return str  The page title.
+	 */
+	function set_page_title($page_title)
+	{
+		if (strpos(url()->current(), '/admin') == true)
+		{
+			return $page_title = get_settings('company_name').' | Admin Panel | '.$page_title;
+		}
+		else
+		{
+			return $page_title = get_settings('company_name').' | '.$page_title;
+		}
+	}
+
 ?>

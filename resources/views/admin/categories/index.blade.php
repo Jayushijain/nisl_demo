@@ -43,12 +43,15 @@
         <form>
             <input type="hidden" name="_token" value={{ csrf_token() }}>
         <div class="panel-body table-responsive">
-            <table id="categories_table" class="table  table-bordered table-striped">
+            <input type="hidden" id="category_url" value="{{ route('admin.categoriesList') }}">
+            <input type="hidden" id="has_delete" value="{{ has_permissions('categories','delete') }}">
+            <input type="hidden" id="has_edit" value="{{ has_permissions('categories','edit') }}">
+            <table id="categories_table" class="table  table-bordered table-striped data_table">
                 <thead>
                     <tr>
                         @if (has_permissions('categories','delete'))
                         <th width="2%">
-                            <input type="checkbox" name="select_all" id="select_all" class="styled"  onclick="select_all(this);" >
+                        <input type="checkbox" name="select_all" id="select_all" class="styled" onclick="select_all(this);" >
                         </th>
                         @endif
                         <th width="82%">{{ __('messages.name') }}</th>
@@ -135,18 +138,19 @@
     </div>
 </div>
 <!-- /Add form modal -->
-@section('scripts')
-<script type="text/javascript">
-    
 
+@endsection
+@section('scripts')
+{{-- <script src="{{ asset('admin/js/scripts') }}/categories/index.js"></script> --}}
+<script type="text/javascript">
 $(function() {
 
     $('#categories_table').DataTable({
         'columnDefs': [ {
-        'targets': [0,2,3], /* column index */
+        'targets': [0,2,3],  /*column index*/ 
         'orderable': false, /* disable sorting */
         }],
-
+         
     });
 
     //add class to style style datatable select box
@@ -155,8 +159,7 @@ $(function() {
 
 $("#categoryform").validate({
     rules: {
-        name:
-        {
+        name:{
             required: true,
         },
     },
@@ -182,9 +185,7 @@ function change_status(obj)
     {
         checked = 1;
     }
-
-   
-
+    
     $.ajax({
         url: "{{ route('categories.update_status') }}",
         type: 'POST',
@@ -309,5 +310,4 @@ function delete_selected()
 }
 
 </script>
-@stop
 @stop

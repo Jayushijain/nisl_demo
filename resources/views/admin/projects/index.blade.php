@@ -42,6 +42,9 @@
     
     <!-- Listing table -->
     <div class="panel-body table-responsive">
+      <input type="hidden" id="project_url" value="{{ route('admin.projectsList') }}">
+      <input type="hidden" id="has_delete" value="{{ has_permissions('projects','delete') }}">
+      <input type="hidden" id="has_edit" value="{{ has_permissions('projects','edit') }}">
       <table id="projects_table" class="table table-bordered table-striped">
         <thead>
           <tr>
@@ -100,7 +103,7 @@ $(function() {
 
     $('#projects_table').DataTable({
         'columnDefs': [ {
-        'targets': [0,3,4,5], /* column index */
+        'targets': [0,3,4,5],  /*column index*/ 
         'orderable': false, /* disable sorting */
         }],
          
@@ -137,7 +140,6 @@ function delete_record(id)
             url:'/admin/projects/delete/'+id,            
             success: function(msg)
             {
-                alert(msg);
                 if (msg=="true")
                 {                    
                     swal({                        

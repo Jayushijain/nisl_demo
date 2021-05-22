@@ -22,15 +22,15 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::match(['GET', 'POST'], '/authentication', 'AuthenticationController@index')->name('authentication');
 
-Route::post('/authentication/signup','AuthenticationController@signup');
+Route::post('/authentication/signup', 'AuthenticationController@signup');
 
-Route::post('/authentication/email_exists','AuthenticationController@email_exists');
+//Route::post('/authentication/email_exists', 'AuthenticationController@email_exists');
 
 Route::match(['GET', 'POST'], '/authentication/forgot_password', 'AuthenticationController@forgot_password')->name('authentication.forgot_password');
 
 Route::match(['GET', 'POST'], '/authentication/reset_password', 'AuthenticationController@reset_password')->name('authentication.reset_password');
 
-Route::get('/','HomeController@index');
+Route::get('/', 'HomeController@index');
 
 Route::get('/authentication/logout', 'AuthenticationController@logout');
 
@@ -48,40 +48,43 @@ Route::middleware(['logincheck'])->group(function ()
 
 	Route::middleware(['check.permissions'])->group(function ()
 	{
+		//Categories
 		Route::resource('/admin/categories', 'Admin\CategoryController');
-
+		Route::post('/admin/categoriesList', 'Admin\CategoryController@get_categories')->name('admin.categoriesList');
 		Route::get('/admin/categories/delete/{id}', 'Admin\CategoryController@destroy')->name('categories.delete');
-
 		Route::post('/admin/categories/update_status', 'Admin\CategoryController@update_status')->name('categories.update_status');
-
 		Route::post('/admin/categories/delete_selected', 'Admin\CategoryController@delete_selected')->name('categories.delete_selected');
 
+		//Projects
 		Route::resource('/admin/projects', 'Admin\ProjectController');
-
 		Route::post('/admin/projects/delete_selected', 'Admin\ProjectController@delete_selected')->name('projects.delete_selected');
-
 		Route::get('/admin/projects/delete/{id}', 'Admin\ProjectController@destroy')->name('projects.delete');
+		Route::post('/admin/projectsList', 'Admin\projectController@get_projects')->name('admin.projectsList');
 
+		//Users
 		Route::resource('/admin/users', 'Admin\UserController');
-
 		Route::get('/admin/users/delete/{id}', 'Admin\UserController@destroy')->name('users.delete');
-
 		Route::post('/admin/users/update_status', 'Admin\UserController@update_status')->name('users.update_status');
-
 		Route::post('/admin/users/delete_selected', 'Admin\UserController@delete_selected')->name('users.delete_selected');
 
-		Route::resource('/admin/email_templates', 'Admin\EmailController');
-
+		//Settings
 		Route::resource('/admin/settings', 'Admin\SettingController');
-
 		Route::post('/admin/settings/add', 'Admin\SettingController@store')->name('settings.add');
 
+		//Email
+		Route::resource('/admin/email_templates', 'Admin\EmailController');
+		Route::post('/admin/email_templates/update/{id}', 'Admin\EmailController@update')->name('email_templates.update');
+
+		//Roles
 		Route::resource('/admin/roles', 'Admin\RoleController');
-
 		Route::get('/admin/roles/delete/{id}', 'Admin\RoleController@destroy')->name('roles.delete');
-
 		Route::post('/admin/roles/delete_selected', 'Admin\RoleController@delete_selected')->name('roles.delete_selected');
 
 	});
 
+	Route::resource('/admin', 'Admin\ProfileController');
+	
+	Route::put('/admin/edit_password/{id}', 'Admin\ProfileController@edit_password')->name('admin.edit_password');
+
 });
+

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Role;
 use App\User;
+use Auth;
+use Log;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -16,9 +18,15 @@ class UserController extends Controller
 	 */
 	public function index()
 	{
-		$users = User::get();
-
-		return view('admin.users.index', compact('users'));
+		try{
+			$users = User::where('id','!=',Auth::user()->id)->get();
+			$data['page_title'] = 'Users';
+			return view('admin.users.index', compact('users'),$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('UserController index: '.$e->getMessage());
+            return redirect('/admin/dashboard')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -28,9 +36,16 @@ class UserController extends Controller
 	 */
 	public function create()
 	{
-		$roles = Role::get();
-
-		return view('admin.users.create', compact('roles'));
+		try{
+			$roles = Role::get();
+			$data['page_title'] = 'Users';
+			return view('admin.users.create', compact('roles'),$data);
+		}
+		catch (\RuntimeException $e){
+            Log::info('UserController create: '.$e->getMessage());
+            return redirect('/admin/users')->with('error_message','Something went wrong! Please Try again');
+        }
+		
 	}
 
 	/**
@@ -41,43 +56,36 @@ class UserController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		$input = $request->except(['_token']);
+		try{
+			$input = $request->except(['_token']);
 
-		$input['password']   = md5($request->password);
-		$input['is_active']  = 1;
-		$input['signup_key'] = '';
-		$input['last_ip']    = $request->ip();
+			$input['password']   = md5($request->password);
+			$input['is_active']  = 1;
+			$input['signup_key'] = '';
+			$input['last_ip']    = $request->ip();
 
-		if ($request->role == 1)
-		{
-			$input['is_admin'] = 1;
+			if ($request->role == 1)
+			{
+				$input['is_admin'] = 1;
+			}
+			else
+			{
+				$input['is_admin'] = 0;
+			}
+
+			$insert = User::save($input);
+	        log_activity("New User Created [ID: $insert->id]");
+
+	        if($insert)
+	        {
+	            set_alert('success', __('messages._added_successfully', ['Name' => __('messages.user')]));
+	            return redirect('/admin/users');            
+	        }
 		}
-		else
-		{
-			$input['is_admin'] = 0;
-		}
-
-		$insert = User::save($input);
-        log_activity("New User Created [ID: $insert->id]");
-
-        if($insert)
-        {
-            set_alert('success', __('messages._added_successfully', ['Name' => __('messages.user')]));
-
-            return redirect('/admin/users');            
+		catch (\RuntimeException $e){
+            Log::info('UserController store: '.$e->getMessage());
+            return redirect('/admin/users')->with('error_message','Something went wrong! Please Try again');
         }
-		
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show($id)
-	{
-		//
 	}
 
 	/**
@@ -88,10 +96,26 @@ class UserController extends Controller
 	 */
 	public function edit($id)
 	{
-		$roles = Role::get();
-		$user  = User::find($id);
+		try{
+			$roles = Role::get();
+			$user  = User::find($id);
+			$data['page_title'] = 'Users';
 
-		return view('admin.users.edit', compact('roles', 'user'));
+			if($user)
+			{
+				return view('admin.users.edit', compact('roles', 'user'),$data);
+			}
+			else
+			{
+				set_alert('success', __('messages.no_data_found'));
+				return redirect('/admin/users');
+			}
+		}
+		catch (\RuntimeException $e){
+            Log::info('UserController edit: '.$e->getMessage());
+            return redirect('/admin/users')->with('error_message','Something went wrong! Please Try again');
+        }
+		
 	}
 
 	/**
@@ -103,28 +127,33 @@ class UserController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		$input = $request->except(['_method', '_token']);
-		$user  = User::find($id);
+		try{
+			$input = $request->except(['_method', '_token']);
+			$user  = User::find($id);
+			$data['page_title'] = 'Users';
+			if ($request->newpassword == NULL)
+			{
+				$input['is_active'] = $request->is_active ? 1 : 0;
+			}
+			else
+			{
+				$input['password']  = md5($request->password);
+				$input['is_active'] = $request->is_active ? 1 : 0;
+			}
 
-		if ($request->newpassword == NULL)
-		{
-			$input['is_active'] = $request->is_active ? 1 : 0;
+			$input['is_admin'] = ($request->role == 1) ? 1 : 0;
+			$update            = $user->update($input);
+			$data['page_title'] = 'Users';
+			if ($update)
+			{
+				set_alert('success', __('messages._updated_successfully', ['Name' => __('messages.user')]));
+				return redirect('/admin/users');
+			}
 		}
-		else
-		{
-			$input['password']  = md5($request->password);
-			$input['is_active'] = $request->is_active ? 1 : 0;
-		}
-
-		$input['is_admin'] = ($request->role == 1) ? 1 : 0;
-		$update            = $user->update($input);
-
-		if ($update)
-		{
-			set_alert('success', __('messages._updated_successfully', ['Name' => __('messages.user')]));
-
-			return redirect('/admin/users');
-		}
+		catch (\RuntimeException $e){
+            Log::info('UserController update: '.$e->getMessage());
+            return redirect('/admin/users')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 
@@ -133,23 +162,29 @@ class UserController extends Controller
 	 */
 	public function update_status(Request $request)
 	{
-		$user_id        = $request->user_id;
-		$user           = User::find($user_id);
-		$input['is_active'] = $request->is_active;
+		try{
+			$user_id        = $request->user_id;
+			$user           = User::find($user_id);
+			$input['is_active'] = $request->is_active;
 
-		$update = $user->update($input);
+			$update = $user->update($input);
 
-		if ($update)
-		{
-			if ($request->is_active == 1)
+			if ($update)
 			{
-				echo 'true';
-			}
-			else
-			{
-				echo 'false';
+				if ($request->is_active == 1)
+				{
+					echo 'true';
+				}
+				else
+				{
+					echo 'false';
+				}
 			}
 		}
+		catch (\RuntimeException $e){
+            Log::info('UserController update_status: '.$e->getMessage());
+            return redirect('/admin/users')->with('error_message','Something went wrong! Please Try again');
+        }		
 	}
 
 	/**
@@ -160,16 +195,23 @@ class UserController extends Controller
 	 */
 	public function destroy($id)
 	{
-		$user = User::find($id);
+		try{
+			$user = User::find($id);
 
-		if ($user->delete())
-		{
-			echo 'true';
+			if ($user->delete())
+			{
+				echo 'true';
+			}
+			else
+			{
+				echo 'false';
+			}
 		}
-		else
-		{
-			echo 'false';
-		}
+		catch (\RuntimeException $e){
+            Log::info('UserController destroy: '.$e->getMessage());
+            return redirect('/admin/users')->with('error_message','Something went wrong! Please Try again');
+        }
+		
 	}
 
 	/**
@@ -177,16 +219,22 @@ class UserController extends Controller
 	 */
 	public function delete_selected(Request $request)
 	{
-		$ids     = $request->ids;
-		$deleted = User::destroy($ids);
+		try{
+			$ids     = $request->ids;
+			$deleted = User::destroy($ids);
 
-		if ($deleted)
-		{
-			echo 'true';
+			if ($deleted)
+			{
+				echo 'true';
+			}
+			else
+			{
+				echo 'false';
+			}
 		}
-		else
-		{
-			echo 'false';
-		}		
+		catch (\RuntimeException $e){
+            Log::info('UserController delete_selected: '.$e->getMessage());
+            return redirect('/admin/users')->with('error_message','Something went wrong! Please Try again');
+        }				
 	}
 }

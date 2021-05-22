@@ -44,7 +44,7 @@ class Authentication extends Model
 				'is_admin'       => $user->is_admin,
 				'user_logged_in' => true
 			];
-
+			auth()->loginUsingId($user->id);
 			session($user_data);
 
 // 	if ($remember)
